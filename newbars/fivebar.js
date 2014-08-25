@@ -20,14 +20,15 @@ Fivebar.prototype.calcPoints = function (theta1, theta2) {
   this.p4x = this.p5x + this.d * Math.cos(P45angle);
   this.p4y = this.p5y + this.d * Math.sin(P45angle);
 
-  var fbpoints = this.Fourbar.prototype.calcPoints.call(this, fourbarTheta1);
-
-  return fbpoints.concat([this.p4x, this.p4y]);
+  var points = this.Fourbar.prototype.calcPoints.call(this, fourbarTheta1);
+  points.p4 = {x:p4x, y:p4y};
+  return points;
 };
 
 
 var FivebarExt = function(p1x, p1y, p5x, p5y, a, b, c, d, thetaExt, dExt) {
   Fivebar.call(this, p1x, p1y, p5x, p5y, a, b, c, d);
+
   this.dExt = dExt;
   this.thetaExt = thetaExt;
   this.Fourbar = FourbarExt;

@@ -63,16 +63,17 @@ Fourbar.prototype.calcPoints = (function {
         throw "error: consistency calculation for p3 failed";
     }
 
-    // save theta3 for FourbarExt calculation
+    // optimization: save theta3 for FourbarExt calcPoints
     // this.P23angle = theta3;
 
-    return [p2x, p2y, p3x, p3y];
+    return {p2:{x:p2x, y:p2y}, p3:{x:p3x, y:p3y}};
   };
 }());
 
 
 var FourbarExt = function (p1x, p1y, p4x, p4y, a, b, c, thetaExt, dExt) {
   Fourbar.call(this, p1x, p1y, p4x, p4y, a, b, c);
+  
   this.dExt = dExt;
   this.thetaExt = thetaExt;
 };
@@ -83,11 +84,13 @@ FourbarExt.prototype.constructor = FourbarExt;
 FourbarExt.prototype.calcPoints = function (input1) {
   var points = Fourbar.prototype.calcPoints.call(input1);
 
+  // recalculate theta3 from Fourbar calcPoints
   this.P23angle = Math.atan2(points[3] - points[1], points[2] - points[0]);
 
   var pEx = points[0] + this.dExt * Math.cos(this.thetaExt + this.P23angle);
   var pEy = points[1] + this.dExt * Math.sin(this.thetaExt + this.P23angle);
-
-  return points.concat([pEx, pEy]);
+  points.pE = {x:pEx, y:pEy};
+  
+  return points;
 };
 
