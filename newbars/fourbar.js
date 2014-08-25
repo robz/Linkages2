@@ -70,6 +70,16 @@ Fourbar.prototype.calcPoints = (function {
   };
 }());
 
+Fourbar.prototype.calcPath = function (numPoints) {
+  var pointsList = [];
+
+  for (var i = 0; i < numPoints; i++) {
+    pointsList.push(this.calcPoints(Math.PI * 2 * i / numPoints));
+  }
+
+  return pointsList;
+};
+
 
 var FourbarExt = function (p1x, p1y, p4x, p4y, a, b, c, thetaExt, dExt) {
   Fourbar.call(this, p1x, p1y, p4x, p4y, a, b, c);
