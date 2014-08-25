@@ -1,4 +1,5 @@
 var Fourbar = function (p1x, p1y, p4x, p4y, a, b, c) {
+  if (!(this instanceof Fourbar)) { throw Error('lacking new'); }
   this.p1x = p1x;
   this.p1y = p1y;
   this.p4x = p4x;
@@ -9,13 +10,18 @@ var Fourbar = function (p1x, p1y, p4x, p4y, a, b, c) {
 };
         
 Fourbar.prototype.calcPoints = (function () {
+  // acos and sqrt will detect if the linkage goes into an invalid configuation
   function acos(x) {
-    if (x > 1 + 1e-6 || x < -1 - 1e-6) { throw "acos(" + x + ")"; }
+    if (x > 1 + 1e-6 || x < -1 - 1e-6) { 
+      throw Error("acos(" + x + ")"); 
+    }
     return Math.acos(x);
   }
             
   function sqrt(x) {
-    if (x < 0) { throw "sqrt(" + x + ")"; }
+    if (x < 0) { 
+      throw Error("sqrt(" + x + ")"); 
+    }
     return Math.sqrt(x);
   }
 
@@ -26,9 +32,10 @@ Fourbar.prototype.calcPoints = (function () {
   }
 
   return function (theta1) {
+    // wrap theta1 (errors arise if it goes outside of [0,2pi])
     theta1 = (theta1%(Math.PI*2) + Math.PI*2)%(Math.PI*2);
 
-    // convienence definitions
+    // convenience definitions
     var a = this.a;
     var b = this.b;
     var c = this.c;
@@ -61,15 +68,9 @@ Fourbar.prototype.calcPoints = (function () {
     var p3x_2 = this.p4x + c * Math.cos(zeta + theta3);
     var p3y_2 = this.p4y + c * Math.sin(zeta + theta3);
     
-    if (Math.abs(p3x_2 - p3x) > 1e-6
-        || Math.abs(p3y_2 - p3y) > 1e-6) 
-    {
-        console.log(theta1, p3x, p3y, p3x_2, p3y_2);
-        //throw "error: consistency calculation for p3 failed";
+    if (Math.abs(p3x_2 - p3x) > 1e-6 || Math.abs(p3y_2 - p3y) > 1e-6) {
+        throw Error("error: consistency calculation for p3 failed");
     }
-
-    // optimization: save theta3 for FourbarExt calcPoints
-    // this.P23angle = theta3;
 
     this.points = {p2:{x:p2x, y:p2y}, p3:{x:p3x, y:p3y}};
     return this.points;
@@ -89,6 +90,8 @@ Fourbar.prototype.calcPath = function (numPoints) {
 
 
 var FourbarExt = function (p1x, p1y, p4x, p4y, a, b, c, thetaExt, dExt) {
+  if (!(this instanceof FourbarExt)) { throw Error('lacking new'); }
+  
   Fourbar.call(this, p1x, p1y, p4x, p4y, a, b, c);
   
   this.dExt = dExt;
@@ -101,7 +104,6 @@ FourbarExt.prototype.constructor = FourbarExt;
 FourbarExt.prototype.calcPoints = function (input1) {
   var points = Fourbar.prototype.calcPoints.call(this, input1);
 
-  // recalculate theta3 from Fourbar calcPoints
   this.P23angle = Math.atan2(
     points.p3.y - points.p2.y, 
     points.p3.x - points.p2.x);
