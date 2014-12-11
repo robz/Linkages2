@@ -1,7 +1,12 @@
 (function () {
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
-  var linkage = new FivebarExt(50, 150, 350, 150, 40, 200, 200, 50, Math.PI/6, 80);
+
+  var linkage = Object.create(FivebarExt.prototype);
+  FivebarExt.apply(
+    linkage,
+    [50, 150, 350, 150, 40, 200, 200, 50, Math.PI/6, 80]
+  );
 
   var theta = 0; 
   linkage.calcPath(100, 2, 0);
