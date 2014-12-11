@@ -30,7 +30,7 @@ function makeBarOptimizer(applyVector, calcPath, desiredPath) {
   };
   
   var scales = [1, 1, 1, 1, 1, 1, 1, 1, .1, 1];
-  scales = scales.map(function (e) { return e * 4; });
+  scales = scales.map(function (e) { return e * 10; });
 
   return function (vector) {
     return optimizeStep(vector, calcOutput, measureError, scales);

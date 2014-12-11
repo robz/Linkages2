@@ -6,16 +6,16 @@
   ctx.fill();
 
   var linkage = Object.create(FivebarExt.prototype);
-
   var applyVector = Function.prototype.apply.bind(FivebarExt, linkage);
   var calcPath = linkage.calcPath.bind(linkage, 100, 2, 0);
  
-  var obj = {buffer:null}; 
   var vector = [50, 150, 350, 150, 40, 200, 200, 50, Math.PI/6, 80];
   function update(vector) {
     applyVector(vector);
+    ctx.putImageData(buffer, 0, 0);
     calcPath();
     linkage.drawPath(ctx);
+    pathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
   }
 
   var buffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
@@ -25,13 +25,12 @@
   setInterval(function () {
     vector = optimize(vector);
     update(vector);
-  }, 10);
+  }, 100);
 
   var theta = 0; 
   (function f() {
     theta += .01;
-    ctx.putImageData(buffer, 0, 0);
-    linkage.drawPath(ctx);
+    ctx.putImageData(pathBuffer, 0, 0);
     linkage.calcPoints(theta, theta*2);
     linkage.draw(ctx);
     requestAnimationFrame(f);
