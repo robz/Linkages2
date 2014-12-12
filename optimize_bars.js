@@ -25,8 +25,16 @@ function makeBarOptimizer(applyVector, calcPath, desiredPath) {
   }
 
   var calcOutput = function (vector) {
-    applyVector(vector);
-    return calcPath();
+    var res;
+
+    try {
+      applyVector(vector);
+      res = calcPath();
+    } catch (e) {
+      return null;
+    }
+
+    return res;
   };
   
   var scales = [1, 1, 1, 1, 1, 1, 1, 1, .1, 1];

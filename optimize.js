@@ -9,6 +9,11 @@ function optimizeStep(initialVector, calcOutput, measureError, tweakScales) {
 
   var newOutput = calcOutput(newVector);
 
+  // if the output was falsy, then the vector is not a valid state
+  if (!newOutput) {
+    return initialVector;
+  }
+
   // return tweaked vector if its better
   return (measureError(newOutput) < measureError(initialOutput))
     ? newVector

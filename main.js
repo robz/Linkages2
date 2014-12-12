@@ -12,8 +12,8 @@
   var vector = [50, 150, 350, 150, 40, 200, 200, 50, Math.PI/6, 80];
   function update(vector) {
     applyVector(vector);
-    ctx.putImageData(buffer, 0, 0);
     calcPath();
+    ctx.putImageData(buffer, 0, 0);
     linkage.drawPath(ctx);
     pathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
   }
@@ -21,11 +21,17 @@
   var buffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
   update(vector);
 
-  var optimize = makeBarOptimizer(applyVector, calcPath, [{pE:{x:0, y:0}}]);
+  var linkage2 = Object.create(FivebarExt.prototype);
+  var optimize = makeBarOptimizer(
+    Function.prototype.apply.bind(FivebarExt, linkage2),
+    linkage.calcPath.bind(linkage2, 100, 2, 0),
+    [{pE:{x:0, y:0}}]
+  );
+
   setInterval(function () {
     vector = optimize(vector);
     update(vector);
-  }, 100);
+  }, 10);
 
   var theta = 0; 
   (function f() {
