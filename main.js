@@ -10,6 +10,7 @@
   var calcPath = linkage.calcPath.bind(linkage, 100, 2, 0);
  
   var vector = [50, 150, 350, 150, 40, 200, 200, 50, Math.PI/6, 80];
+
   function update(vector) {
     applyVector(vector);
     calcPath();
