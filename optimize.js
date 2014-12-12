@@ -1,23 +1,49 @@
-function optimizeStep(initialVector, calcOutput, measureError, tweakScales) {
+function optimizeStep(
+  initialVector, 
+  calcOutput, 
+  measureError, 
+  tweakScales, 
+  prevCount, 
+  maxCount
+) {
   var initialOutput = calcOutput(initialVector);
+  var initialError = measureError(initialOutput);
+  var count = 0;
 
-  // tweak vector
-  var newVector = [];
-  initialVector.forEach(function (elem, i) {
-    newVector.push(elem + tweakScales[i] * (Math.random() - .5));
-  });
+  do {
+    // tweak vector
+    var newVector = [];
+    initialVector.forEach(function (elem, i) {
+      newVector.push(elem + tweakScales[i] * (Math.random() - .5));
+    });
 
-  var newOutput = calcOutput(newVector);
+    var newOutput = calcOutput(newVector);
+    var newError = (newOutput !== null) && measureError(newOutput);
 
-  // if the output was falsy, then the vector is not a valid state
-  if (!newOutput) {
-    return initialVector;
+    count += 1;
+
+    // continue until the tweaked vector is better
+    // or the output is null (meaning the new vector is an invalid state)
+    // and as long as we haven't tried too many times
+  } while (
+    (newOutput === null || !(newError < initialError)) && 
+    count + prevCount < maxCount
+  );
+
+  // if our last attempt produced an invalid state, just return initial
+  if (newOutput === null) {
+    return {
+      vector: initialVector,
+      error: initialError,
+      count: count,
+    };
+  } else {
+    return {
+      vector: newVector,
+      error: newError,
+      count: count,
+    };
   }
-
-  // return tweaked vector if its better
-  return (measureError(newOutput) < measureError(initialOutput))
-    ? newVector
-    : initialVector;
 }
 
 function testOptimizeStep() {

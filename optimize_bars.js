@@ -40,7 +40,14 @@ function makeBarOptimizer(applyVector, calcPath, desiredPath) {
   var scales = [1, 1, 1, 1, 1, 1, 1, 1, .1, 1];
   scales = scales.map(function (e) { return e * 10; });
 
-  return function (vector) {
-    return optimizeStep(vector, calcOutput, measureError, scales);
+  return function (vector, prevCount, maxCount) {
+    return optimizeStep(
+      vector, 
+      calcOutput, 
+      measureError, 
+      scales, 
+      prevCount, 
+      maxCount
+    );
   };
 };
