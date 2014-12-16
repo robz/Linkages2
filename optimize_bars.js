@@ -1,7 +1,8 @@
 var makeLinkageOptimizer = (function () {
-  return function (desiredPath, initialVector, update) {
-    var MAX_OPTIMIZE_STEPS = 10000;
+  var MAX_OPTIMIZE_STEPS = 10000;
+  var SCALE = 20;
 
+  return function (desiredPath, initialVector, update) {
     var linkage = Object.create(FivebarExt.prototype);
     var optimize = makeLinkageOptimizeStep(
       Function.prototype.apply.bind(FivebarExt, linkage),
@@ -9,8 +10,6 @@ var makeLinkageOptimizer = (function () {
       desiredPath 
     );
     
-    var count = 0;
-
     var that = {};
 
     that.done = true;
@@ -25,6 +24,8 @@ var makeLinkageOptimizer = (function () {
 
       that.done = false;
     
+      var count = 0;
+    
       setTimeout(function f() {
         var res = optimize(that.vector, count, MAX_OPTIMIZE_STEPS);
 
@@ -32,7 +33,6 @@ var makeLinkageOptimizer = (function () {
         update(that.vector);
 
         count += res.count;
-        //console.log(count);
 
         if (!that.done && res.error > 1 && count < MAX_OPTIMIZE_STEPS) {
           setTimeout(f, 10);
@@ -60,6 +60,58 @@ var makeLinkageOptimizer = (function () {
       };
     }
 
+    function calcDist(p1, p2) {
+      var dx = p2.x - p1.x;
+      var dy = p2.y - p1.y;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
+
+    function calcMinDistSum(path1, path2) {
+      var sum = 0;
+
+      path1.forEach(function (e1) {
+        var p1 = e1.pE;
+        var minDist = Number.MAX_VALUE;
+        
+        path2.forEach(function (e2) {
+          var p2 = e2.pE;
+          var dist = calcDist(p1, p2);
+          
+          if (dist < minDist) {
+            minDist = dist;
+          }
+        }); 
+  
+        sum += minDist;
+      });
+
+      return sum;
+    }
+
+    function calcMaxMinDist(path1, path2) {
+      var maxMin = Number.MIN_VALUE;
+
+      path1.forEach(function (e1) {
+        var p1 = e1.pE;
+        var minDist = Number.MAX_VALUE;
+        
+        path2.forEach(function (e2) {
+          var p2 = e2.pE;
+          var dist = calcDist(p1, p2);
+          
+          if (dist < minDist) {
+            minDist = dist;
+          }
+        }); 
+    
+        if (minDist > maxMin) {
+          maxMin = minDist;
+        } 
+      });
+
+      return maxMin;
+    }
+
     var desiredAverage = averagePoint(desiredPath);
 
     function measureError(path) {
@@ -68,7 +120,13 @@ var makeLinkageOptimizer = (function () {
         Math.abs(desiredAverage.x - average.x) + 
         Math.abs(desiredAverage.y - average.y);
 
-      return errorAverage;
+      var d1 = calcMinDistSum(path, desiredPath);
+      var d2 = calcMinDistSum(desiredPath, path);
+
+      var maxMinDist1 = calcMaxMinDist(path, desiredPath);
+      var maxMinDist2 = calcMaxMinDist(desiredPath, path);
+
+      return maxMinDist2;
     }
 
     var calcOutput = function (vector) {
@@ -84,8 +142,8 @@ var makeLinkageOptimizer = (function () {
       return res;
     };
     
-    var scales = [1, 1, 1, 1, 1, 1, 1, 1, .1, 1];
-    scales = scales.map(function (e) { return e * 10; });
+    var scales = [1, 1, 1, 1, 1, 1, 1, 1, .01, .5];
+    scales = scales.map(function (e) { return e * SCALE; });
 
     return function (vector, prevCount, maxCount) {
       return optimizeStep(
