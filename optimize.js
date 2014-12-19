@@ -27,12 +27,12 @@ var optimizeStep = (function () {
       // or the output is null (meaning the new vector is an invalid state)
       // and as long as we haven't tried too many times
     } while (
-      (newOutput === null || !(newError < initialError)) && 
+      (newOutput === null || newError > initialError) && 
       count + prevCount < maxCount
     );
 
-    // if our last attempt produced an invalid state, just return initial
-    if (newOutput === null) {
+    // if our last attempt produced an invalid state, or a worse output, just return initial
+    if (newOutput === null || newError > initialError) {
       return {
         vector: initialVector,
         error: initialError,

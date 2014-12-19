@@ -38,6 +38,11 @@ var Graphics = (function () {
     if (path.length === 0) {
       return;
     }
+    
+    ctx.save();    
+
+    ctx.strokeStyle = 'blue';
+    ctx.fillStyle = 'blue';
 
     ctx.beginPath();
     ctx.moveTo(path[0].pE.x, path[0].pE.y);
@@ -51,6 +56,8 @@ var Graphics = (function () {
       ctx.arc(e.pE.x, e.pE.y, 3, 0, Math.PI*2, false);
       ctx.fill();
     });
+
+    ctx.restore();
   }
 
   that.onPathDrawn = function () {};
@@ -72,7 +79,10 @@ var Graphics = (function () {
 
   that.setLinkagePath = function (linkage) {
     ctx.putImageData(defaultBuffer, 0, 0);
+    ctx.save();
+    ctx.strokeStyle = 'red';
     linkage.drawPath(ctx);
+    ctx.restore();
     linkagePathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
   };
 

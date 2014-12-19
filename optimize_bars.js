@@ -126,7 +126,7 @@ var makeLinkageOptimizer = (function () {
       var maxMinDist1 = calcMaxMinDist(path, desiredPath);
       var maxMinDist2 = calcMaxMinDist(desiredPath, path);
 
-      return maxMinDist2;
+      return maxMinDist2 + maxMinDist1;
     }
 
     var calcOutput = function (vector) {
