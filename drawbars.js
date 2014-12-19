@@ -23,11 +23,11 @@
 
   function drawPath(ctx) {
     ctx.beginPath();
-    ctx.moveTo(this.path[0].pE.x, this.path[1].pE.y);
-    this.path.forEach(function (e) {
+    ctx.moveTo(this.path[0].pE.x, this.path[0].pE.y);
+    this.path.forEach(function (e, i) {
       ctx.lineTo(e.pE.x, e.pE.y);
     });
-    ctx.lineTo(this.path[0].pE.x, this.path[1].pE.y);
+    ctx.lineTo(this.path[0].pE.x, this.path[0].pE.y);
     ctx.stroke();
   }
 
