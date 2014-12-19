@@ -3,7 +3,7 @@
 
   var linkage = Object.create(FivebarExt.prototype);
   var applyVector = Function.prototype.apply.bind(FivebarExt, linkage);
-  var calcPath = linkage.calcPath.bind(linkage, 100, 2, 0);
+  var calcPath = linkage.calcPath.bind(linkage, 1000, 2, 0);
  
   var vector = [50, 150, 350, 150, 40, 200, 200, 50, Math.PI/6, 80];
 

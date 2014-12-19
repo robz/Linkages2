@@ -1,7 +1,3 @@
-// usage: 
-//  bar.calcPath(numPoints);
-//  bar.draw(ctx);
-
 (function () {
   var radius = 3;
 
