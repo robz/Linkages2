@@ -1,19 +1,16 @@
 var Graphics = (function () {
   var that = {};
 
-  var OFFSET_X = 300;
-  var OFFSET_Y = 100;
-
   var ctx = null;
-  var defaultBuffer = null;
+  var canvas = null;
   var inputPathBuffer = null;
 
   var path = [];
   var mouseIsDown = false;
 
   function addToPath(e) {
-    var x = e.clientX - OFFSET_X;
-    var y = e.clientY - OFFSET_Y;
+    var x = e.clientX - that.OFFSET_X;
+    var y = e.clientY - that.OFFSET_Y;
     path.push({pE:{x:x, y:y}});
   }
 
@@ -62,14 +59,21 @@ var Graphics = (function () {
 
   that.onPathDrawn = function () {};
 
-  that.init = function (canvas) {
-    canvas.width = document.body.clientWidth; //document.width is obsolete
-    canvas.height = document.body.clientHeight; //document.height is obsolete
+  that.init = function (_canvas, _outputTA, _inputTA, _controls) {
+    canvas = _canvas;
 
+    canvas.width = document.body.clientWidth - 400;
+    canvas.height = document.body.clientHeight;
+    that.OFFSET_X = canvas.width/2;
+    that.OFFSET_Y = canvas.height/2;
+  
+    [_outputTA, _inputTA].forEach(function (ta) { 
+      ta.style.width = 200;
+      ta.style.height = document.body.clientHeight/2;
+    });
+    
     ctx = canvas.getContext('2d');
-    ctx.translate(OFFSET_X, OFFSET_Y);
-
-    defaultBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    ctx.translate(that.OFFSET_X, that.OFFSET_Y);
     linkagePathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
     canvas.onmousedown = onMouseDown;
@@ -78,9 +82,10 @@ var Graphics = (function () {
   };
 
   that.setLinkagePath = function (linkage) {
-    ctx.putImageData(defaultBuffer, 0, 0);
+    ctx.clearRect(-that.OFFSET_X, -that.OFFSET_Y, canvas.width, canvas.height);
     ctx.save();
     ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
     linkage.drawPath(ctx);
     ctx.restore();
     linkagePathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)

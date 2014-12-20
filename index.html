@@ -1,19 +1,28 @@
 <html>
 <head>
 <style>
-#outer {
-  margin: auto;
+#my_canvas {
+  float: left;
+}
+textarea {
+  margin: 0;
+  padding: 0;
+  position: relative;
 }
 body {
   margin: 0;
   padding: 0;
 }
+#controls {
+  float: left;
+  width: 200px;
+  height: 100%;
+  text-align: center;
+}
+.linkage_control {
+  width: 190px;
+}
 </style>
-</head>
-<body>
-<div id="outer">
-<canvas id="canvas" width=1000 height=600></canvas>
-</div>
 <script src="graphics.js"></script>
 <script src="fourbar.js"></script>
 <script src="fivebar.js"></script>
@@ -21,5 +30,22 @@ body {
 <script src="optimize.js"></script>
 <script src="optimize_bars.js"></script>
 <script src="main.js"></script>
+</head>
+<body>
+<div id="controls">
+<input class="linkage_control" type="range" id="c1">p1 x position</input>
+<input class="linkage_control" type="range" id="c2">p1 y position</input>
+<input class="linkage_control" type="range" id="c3">p2 x position</input>
+<input class="linkage_control" type="range" id="c4">p2 y position</input>
+<input class="linkage_control" type="range" id="c5">first bar length</input>
+<input class="linkage_control" type="range" id="c6">second bar length</input>
+<input class="linkage_control" type="range" id="c7">third bar length</input>
+<input class="linkage_control" type="range" id="c8">forth bar length</input>
+<input class="linkage_control" type="range" id="c9">extension bar angle</input>
+<input class="linkage_control" type="range" id="c10">extension bar length</input>
+</div>
+<canvas id="my_canvas"></canvas>
+<textarea id="outputTA">output</textarea>
+<textarea id="inputTA">input</textarea>
 </body>
 </html>
