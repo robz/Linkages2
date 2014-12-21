@@ -17,4 +17,4 @@ Planned features:
 Wishlist:
 - Improving optimization error functions/algorithm
 
-To test the effectiveness of this tool, I will use it make a "linkage font" by creating a linkage for each letter of the alphabet.
+To test the effectiveness of this tool, I will use it make a "linkage font" by creating a linkage to trace the shape of each letter of the alphabet.
