@@ -12,11 +12,39 @@ window.onload = function () {
  
   var vector = [-150, 0, 150, 0, 40, 200, 200, 50, Math.PI/6, 80];
 
+  var controllers = makeControllers(Graphics.OFFSET_X, Graphics.OFFSET_Y);
+  
+  controllers.forEach(
+    function (info, index) {
+      var elem = document.getElementById(info.id);
+      elem.value = info.f_inv(vector, index) * 100;
+      elem.oninput = function (e) {
+        var value = info.f(e.target.valueAsNumber / 100);
+        var oldValue = vector[index];
+        var newVector = info.g(vector.slice(), value, index);
+        try {
+          update(newVector);
+        } catch (err) {
+          update(vector);
+        }
+      };
+    }
+  );
+
+  function updateOutput() {
+    document.getElementById('outputTA').value = JSON.stringify(vector);
+  }
+
   function update(v) {
     applyVector(v);
     calcPath();
     Graphics.setLinkagePath(linkage);
     vector = v;
+    controllers.forEach(function (controller, i) {
+      document.getElementById(controller.id).value = 
+        controller.f_inv(v, i) * 100;
+    });
+    updateOutput();
   }
   
   update(vector);
@@ -25,44 +53,6 @@ window.onload = function () {
     var optimizer = makeLinkageOptimizer(path, vector, update);
     optimizer.start();
   };
-
-  // from -100 to 100
-  var f_bar = function (x) { return x * 300; };
-  var f_bar_inverse = function (x) { return x / 300; };
-  var f_pos_x = function (x) { return (x - .5) * 2 * Graphics.OFFSET_X; };
-  var f_pos_x_inverse = function (x) { return x / 2 / Graphics.OFFSET_X + .5; };
-  var f_pos_y = function (x) { return (x - .5) * 2 * Graphics.OFFSET_Y; };
-  var f_pos_y_inverse = function (x) { return x / 2 / Graphics.OFFSET_Y + .5; };
-  var f_angle = function (x) { return x * Math.PI * 2; };
-  var f_angle_inverse = function (x) { return x / Math.PI * 2; };
-
-  [
-    { id: 'c1',  f: f_pos_x, f_inverse: f_pos_x_inverse },
-    { id: 'c2',  f: f_pos_y, f_inverse: f_pos_y_inverse },
-    { id: 'c3',  f: f_pos_x, f_inverse: f_pos_x_inverse },
-    { id: 'c4',  f: f_pos_y, f_inverse: f_pos_y_inverse },
-    { id: 'c5',  f: f_bar, f_inverse: f_bar_inverse },
-    { id: 'c6',  f: f_bar, f_inverse: f_bar_inverse },
-    { id: 'c7',  f: f_bar, f_inverse: f_bar_inverse },
-    { id: 'c8',  f: f_bar, f_inverse: f_bar_inverse },
-    { id: 'c9',  f: f_angle, f_inverse: f_angle_inverse },
-    { id: 'c10',  f: f_bar, f_inverse: f_bar_inverse },
-  ].forEach(function (info, index) {
-    var elem = document.getElementById(info.id);
-    elem.value = info.f_inverse(vector[index]) * 100;
-    elem.oninput = function (e) {
-      var value = info.f(e.target.valueAsNumber / 100);
-      var oldValue = vector[index];
-      var newVector = vector.slice();
-      newVector[index] = value;
-      try {
-        update(newVector);
-      } catch (err) {
-        update(vector);
-        e.target.value = info.f_inverse(oldValue) * 100;
-      }
-    };
-  });
 
   var theta = 0; 
   (function f() {

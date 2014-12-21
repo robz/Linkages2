@@ -9,7 +9,7 @@ var Graphics = (function () {
   var mouseIsDown = false;
 
   function addToPath(e) {
-    var x = e.clientX - that.OFFSET_X;
+    var x = e.clientX - that.OFFSET_X - 200;
     var y = e.clientY - that.OFFSET_Y;
     path.push({pE:{x:x, y:y}});
   }
@@ -50,7 +50,7 @@ var Graphics = (function () {
 
     path.forEach(function (e) {
       ctx.beginPath();
-      ctx.arc(e.pE.x, e.pE.y, 3, 0, Math.PI*2, false);
+      ctx.arc(e.pE.x, e.pE.y, 1, 0, Math.PI*2, false);
       ctx.fill();
     });
 
