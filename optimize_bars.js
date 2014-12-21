@@ -1,6 +1,8 @@
 var makeLinkageOptimizer = (function () {
   var MAX_OPTIMIZE_STEPS = 10000;
   var SCALE = 20;
+  
+  var done = true;
 
   return function (desiredPath, initialVector, update) {
     var linkage = Object.create(FivebarExt.prototype);
@@ -12,17 +14,15 @@ var makeLinkageOptimizer = (function () {
     
     var that = {};
 
-    that.done = true;
-  
     that.vector = initialVector;
 
     that.start = function () {
-      if (!that.done) {
+      if (!done) {
         console.log('not done with preview optimization!');
         return;
       }
 
-      that.done = false;
+      done = false;
     
       var count = 0;
     
@@ -34,10 +34,10 @@ var makeLinkageOptimizer = (function () {
 
         count += res.count;
 
-        if (!that.done && res.error > 1 && count < MAX_OPTIMIZE_STEPS) {
+        if (!done && res.error > 1 && count < MAX_OPTIMIZE_STEPS) {
           setTimeout(f, 10);
         } else {
-          that.done = true;
+          done = true;
         }
       }, 10);
     };

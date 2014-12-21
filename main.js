@@ -31,8 +31,8 @@ window.onload = function () {
     }
   );
 
-  function updateOutput() {
-    document.getElementById('outputTA').value = JSON.stringify(vector);
+  function updateOutput(taID) {
+    document.getElementById(taID).value = JSON.stringify(vector);
   }
 
   function update(v) {
@@ -44,7 +44,7 @@ window.onload = function () {
       document.getElementById(controller.id).value = 
         controller.f_inv(v, i) * 100;
     });
-    updateOutput();
+    updateOutput('outputTA');
   }
   
   update(vector);

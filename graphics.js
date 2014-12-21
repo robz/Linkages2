@@ -69,7 +69,7 @@ var Graphics = (function () {
   
     [_outputTA, _inputTA].forEach(function (ta) { 
       ta.style.width = 200;
-      ta.style.height = document.body.clientHeight/2;
+      ta.style.height = (document.body.clientHeight - 40)/2;
     });
     
     ctx = canvas.getContext('2d');
