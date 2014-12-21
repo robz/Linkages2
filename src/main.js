@@ -48,10 +48,11 @@ window.onload = function () {
   }
   
   update(vector);
+
+  var optimizer = new LinkageOptimizer(FivebarExt);
   
   Graphics.onPathDrawn = function (path) {
-    var optimizer = makeLinkageOptimizer(path, vector, update);
-    optimizer.start();
+    optimizer.start(path, vector, update);
   };
 
   var theta = 0; 
