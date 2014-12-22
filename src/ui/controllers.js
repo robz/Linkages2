@@ -1,6 +1,6 @@
-var makeControllers = function (state) {
-  var CENTER_X = state.canvasWidth/2;
-  var CENTER_Y = state.canvasHeight/2;
+var makeControllers = function (state, canvasWidth, canvasHeight, onUpdate) {
+  var CENTER_X = canvasWidth/2;
+  var CENTER_Y = canvasHeight/2;
   console.log(CENTER_X, CENTER_Y);
 
   var pi2 = Math.PI * 2;
@@ -94,9 +94,9 @@ var makeControllers = function (state) {
         var oldValue = state.vector[index];
         var newVector = info.g(state.vector.slice(), value, index);
         try {
-          state.update(newVector);
+          onUpdate(newVector);
         } catch (err) {
-          state.update(state.vector);
+          onUpdate(state.vector);
         }
       };
     }

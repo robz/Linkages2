@@ -1,68 +1,62 @@
 window.onload = function () {
-  Graphics.init(
+  var NUM_POINTS = 100;
+
+  var state = {
+    vector: [-150, 0, 150, 0, 40, 200, 200, 50, Math.PI/6, 80],
+    theta1rate: 1,
+    theta2rate: 3,
+  };
+
+  var ui = makeUI(
     document.getElementById('my_canvas'),
     document.getElementById('outputTA'),
     document.getElementById('inputTA'),
-    document.getElementById('controls')
+    document.getElementById('importButton'),
+    state
   );
-
-  function updateOutput(taID) {
-    document.getElementById(taID).value = JSON.stringify(state.vector);
-  }
-
-  var linkage = Object.create(FivebarExt.prototype);
-  var applyVector = Function.prototype.apply.bind(FivebarExt, linkage);
-  var calcPath = linkage.calcPath.bind(linkage, 100, state.theta1rate, state.theta2rate, 0);
- 
-  state.update = function (v) {
-    applyVector(v);
-    calcPath();
-    Graphics.setLinkagePath(linkage);
-    state.vector = v;
-    controllers.forEach(function (controller, i) {
-      document.getElementById(controller.id).value = 
-        controller.f_inv(v, i) * 100;
-    });
-    updateOutput('outputTA');
-  };
-
-  var canvas = document.getElementById('my_canvas');
-  state.canvasWidth = canvas.width;
-  state.canvasHeight = canvas.height;
-
-  var controllers = makeControllers(state);
-
-  state.update(state.vector);
-
-  var optimizer = new LinkageOptimizer(FivebarExt);
   
-  Graphics.onPathDrawn = function (path) {
-    optimizer.start(path, state.vector, state.update);
+  var linkage = Object.create(FivebarExt.prototype);
+  function updateLinkage(newVector) {
+    state.vector = newVector;
+
+    // set the linkage being drawn to have the new vector
+    FivebarExt.apply(linkage, state.vector);
+
+    // calculate the traced path
+    linkage.calcPath(NUM_POINTS, state.theta1rate, state.theta2rate, 0);
+
+    // update ui elements
+    ui.setLinkagePath(linkage);
+    ui.update(state);
   };
 
-  document.getElementById('importButton').onmousedown = function (e) {
-    var inputText = document.getElementById('inputTA').value;
+  ui.onControllerUpdate = updateLinkage;
+  
+  updateLinkage(state.vector);
 
+  var optimizer = new LinkageOptimizer(FivebarExt, NUM_POINTS, state);
+  ui.onPathDrawn = function (path) {
+    optimizer.start(path, state.vector, updateLinkage);
+  };
+
+  //document.getElementById('importButton').onmousedown = function (e) {
+  //  var inputText = document.getElementById('inputTA').value;
+  ui.onImportButtonPressed = function (inputText) {
     try {
-      var vector = JSON.parse(inputText);
+      var vector = JSON.parse(inputText).vector;
     } catch (err) {
       console.log(err); 
       return;
     }
 
-    state.update(vector);
-  }
-
-  var pi2 = Math.PI*2;
-  function boundTheta(theta) {
-    return theta % pi2;
+    updateLinkage(vector);
   }
 
   var theta = 0; 
   (function f() {
     theta += .01;
     linkage.calcPoints(theta, theta * state.theta2rate / state.theta1rate);
-    Graphics.draw(linkage);
+    ui.draw(linkage);
     requestAnimationFrame(f);
   }());
 };
