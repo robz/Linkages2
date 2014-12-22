@@ -5,7 +5,7 @@ Current features:
 - Tweaking any length/angle/ground position in realtime
 - Automated optimization (rudimentary)
 - Preventing invalid configurations
-- Export of basic linkage spec
+- Import/export of basic linkage spec
 
 Planned features:
 - Tweaking rotatary speeds (integer ratios between rotatary inputs)

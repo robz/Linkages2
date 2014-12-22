@@ -92,7 +92,6 @@ var Graphics = (function () {
   };
 
   function drawLine(p1x, p1y, p2x, p2y) {
-    console.log('hi');
     ctx.save();
     ctx.strokeStyle = 'darkGray';
     ctx.lineWidth = 2;  

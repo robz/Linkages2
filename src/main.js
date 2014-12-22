@@ -55,6 +55,17 @@ window.onload = function () {
     optimizer.start(path, vector, update);
   };
 
+  document.getElementById('importButton').onmousedown = function (e) {
+    var inputText = document.getElementById('inputTA').value;
+    try {
+      var vector = JSON.parse(inputText);
+    } catch (err) {
+      console.log(err); 
+      return;
+    }
+    update(vector);
+  }
+
   var theta = 0; 
   (function f() {
     theta += .01;
