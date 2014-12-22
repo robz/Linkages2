@@ -91,8 +91,22 @@ var Graphics = (function () {
     linkagePathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
   };
 
+  function drawLine(p1x, p1y, p2x, p2y) {
+    console.log('hi');
+    ctx.save();
+    ctx.strokeStyle = 'darkGray';
+    ctx.lineWidth = 2;  
+    ctx.beginPath(); 
+    ctx.moveTo(p1x, p1y);
+    ctx.lineTo(p2x, p2y);
+    ctx.stroke(); 
+    ctx.restore();
+  }
+
   that.draw = function (linkage) {
     ctx.putImageData(linkagePathBuffer, 0, 0);
+    drawLine(-canvas.width/2, 0, canvas.width/2, 0);
+    drawLine(0, -canvas.height/2, 0, canvas.height/2);
     linkage.draw(ctx);
     drawPath();
   };
