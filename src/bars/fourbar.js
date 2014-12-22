@@ -69,7 +69,7 @@ Fourbar.prototype.calcPoints = (function () {
     var p3y_2 = this.p4y + c * Math.sin(zeta + theta3);
     
     if (Math.abs(p3x_2 - p3x) > 1e-6 || Math.abs(p3y_2 - p3y) > 1e-6) {
-        throw Error("error: consistency calculation for p3 failed");
+        throw Error("error: consistency calculation for p3 failed", p3x_2, p3x, p3y_2, p3y);
     }
 
     this.points = {p2:{x:p2x, y:p2y}, p3:{x:p3x, y:p3y}};

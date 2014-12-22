@@ -23,7 +23,7 @@ Fivebar.prototype.calcPoints = function (theta1, theta2) {
   var P14angle = Math.atan2(this.p4y - this.p1y, this.p4x - this.p1x);
   var diff = P14angle - P15angle;
   var fourbarTheta1 = (theta1 - diff + Math.PI * 2) % (Math.PI * 2);
-
+  
   var points = this.fourbarCalcPoints(fourbarTheta1);  
 
   // add p4 (since it varies with theta2)
@@ -33,12 +33,14 @@ Fivebar.prototype.calcPoints = function (theta1, theta2) {
   return points;
 };
 
-Fivebar.prototype.calcPath = function (numPoints, theta2rate, theta2phase) {
+Fivebar.prototype.calcPath = function (numPoints, theta1rate, theta2rate, theta2phase) {
   var pointsList = [];
+
+  numPoints *= theta1rate;
 
   for (var i = 0; i < numPoints; i++) {
     var theta1 = Math.PI * 2 * i / numPoints;
-    var theta2 = theta1 * theta2rate + theta2phase;
+    var theta2 = theta1 * theta2rate / theta1rate + theta2phase;
     pointsList.push(this.calcPoints(theta1, theta2));
   }
 

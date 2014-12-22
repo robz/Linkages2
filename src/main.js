@@ -6,70 +6,62 @@ window.onload = function () {
     document.getElementById('controls')
   );
 
-  var linkage = Object.create(FivebarExt.prototype);
-  var applyVector = Function.prototype.apply.bind(FivebarExt, linkage);
-  var calcPath = linkage.calcPath.bind(linkage, 100, 2, 0);
- 
-  var vector = [-150, 0, 150, 0, 40, 200, 200, 50, Math.PI/6, 80];
-
-  var controllers = makeControllers(Graphics.OFFSET_X, Graphics.OFFSET_Y);
-  
-  controllers.forEach(
-    function (info, index) {
-      var elem = document.getElementById(info.id);
-      elem.value = info.f_inv(vector, index) * 100;
-      elem.oninput = function (e) {
-        var value = info.f(e.target.valueAsNumber / 100);
-        var oldValue = vector[index];
-        var newVector = info.g(vector.slice(), value, index);
-        try {
-          update(newVector);
-        } catch (err) {
-          update(vector);
-        }
-      };
-    }
-  );
-
   function updateOutput(taID) {
-    document.getElementById(taID).value = JSON.stringify(vector);
+    document.getElementById(taID).value = JSON.stringify(state.vector);
   }
 
-  function update(v) {
+  var linkage = Object.create(FivebarExt.prototype);
+  var applyVector = Function.prototype.apply.bind(FivebarExt, linkage);
+  var calcPath = linkage.calcPath.bind(linkage, 100, state.theta1rate, state.theta2rate, 0);
+ 
+  state.update = function (v) {
     applyVector(v);
     calcPath();
     Graphics.setLinkagePath(linkage);
-    vector = v;
+    state.vector = v;
     controllers.forEach(function (controller, i) {
       document.getElementById(controller.id).value = 
         controller.f_inv(v, i) * 100;
     });
     updateOutput('outputTA');
-  }
-  
-  update(vector);
+  };
+
+  var canvas = document.getElementById('my_canvas');
+  state.canvasWidth = canvas.width;
+  state.canvasHeight = canvas.height;
+
+  var controllers = makeControllers(state);
+
+  state.update(state.vector);
 
   var optimizer = new LinkageOptimizer(FivebarExt);
   
   Graphics.onPathDrawn = function (path) {
-    optimizer.start(path, vector, update);
+    optimizer.start(path, state.vector, state.update);
   };
 
   document.getElementById('importButton').onmousedown = function (e) {
     var inputText = document.getElementById('inputTA').value;
+
     try {
       var vector = JSON.parse(inputText);
     } catch (err) {
       console.log(err); 
       return;
     }
-    update(vector);
+
+    state.update(vector);
+  }
+
+  var pi2 = Math.PI*2;
+  function boundTheta(theta) {
+    return theta % pi2;
   }
 
   var theta = 0; 
   (function f() {
     theta += .01;
-    linkage.calcPoints(theta, theta*2);
+    linkage.calcPoints(theta, theta * state.theta2rate / state.theta1rate);
     Graphics.draw(linkage);
     requestAnimationFrame(f);
   }());

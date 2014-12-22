@@ -1,4 +1,8 @@
-var makeControllers = function (CENTER_X, CENTER_Y) {
+var makeControllers = function (state) {
+  var CENTER_X = state.canvasWidth/2;
+  var CENTER_Y = state.canvasHeight/2;
+  console.log(CENTER_X, CENTER_Y);
+
   var pi2 = Math.PI * 2;
   var MAX_BAR_LEN = 500;
 
@@ -80,6 +84,23 @@ var makeControllers = function (CENTER_X, CENTER_Y) {
     { id: 'c13', f: f_angle,   f_inv: g_rotate_p2_inverse,   g: g_rotate_p2 },
     { id: 'c14', f: f_bar,     f_inv: g_p12dist_inverse,     g: g_p12dist },
   ];
+
+  controllers.forEach(
+    function (info, index) {
+      var elem = document.getElementById(info.id);
+      elem.value = info.f_inv(state.vector, index) * 100;
+      elem.oninput = function (e) {
+        var value = info.f(e.target.valueAsNumber / 100);
+        var oldValue = state.vector[index];
+        var newVector = info.g(state.vector.slice(), value, index);
+        try {
+          state.update(newVector);
+        } catch (err) {
+          state.update(state.vector);
+        }
+      };
+    }
+  );
   
   return controllers;
 };

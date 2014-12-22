@@ -1,7 +1,7 @@
 function LinkageOptimizer(LinkageClass) {
   if (!(this instanceof LinkageOptimizer)) { throw Error('lacking new'); }
 
-  this.MAX_OPTIMIZE_STEPS = 10000;
+  this.MAX_OPTIMIZE_STEPS = 3000;
   this.SCALE = 20;
   this.PERIOD = 10;
  
@@ -9,7 +9,7 @@ function LinkageOptimizer(LinkageClass) {
 
   var linkage = Object.create(LinkageClass.prototype);
   this.applyVector = Function.prototype.apply.bind(LinkageClass, linkage);
-  this.calcPath = linkage.calcPath.bind(linkage, 100, 2, 0);
+  this.calcPath = linkage.calcPath.bind(linkage, 100, state.theta1rate, state.theta2rate, 0);
 }
 
 LinkageOptimizer.prototype.start = function (
