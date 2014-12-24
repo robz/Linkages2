@@ -29,28 +29,40 @@ window.onload = function () {
     ui.setLinkagePath(linkage);
     ui.update(state);
   };
-
-  ui.onControllerUpdate = updateLinkage;
   
   updateLinkage(state.vector);
 
+  // range inputs update the linkage
+  ui.onControllerUpdate = updateLinkage;
+ 
+  // run the optimizer after drawing a single stroke 
   var optimizer = new LinkageOptimizer(FivebarExt, NUM_POINTS, state);
   ui.onPathDrawn = function (path) {
     optimizer.start(path, state.vector, updateLinkage);
   };
 
-  //document.getElementById('importButton').onmousedown = function (e) {
-  //  var inputText = document.getElementById('inputTA').value;
+  // update the linkage when importing, after validation
   ui.onImportButtonPressed = function (inputText) {
     try {
-      var vector = JSON.parse(inputText).vector;
+      var newState = JSON.parse(inputText);
     } catch (err) {
       console.log(err); 
       return;
     }
-
-    updateLinkage(vector);
-  }
+   
+    if (
+      newState.theta1rate === undefined || 
+      newState.theta2rate === undefined ||
+      newState.vector === undefined
+    ) {
+      console.log('import does not contain required properties:', newState);
+      return;
+    }
+  
+    state.theta1rate = newState.theta1rate;
+    state.theta2rate = newState.theta2rate;
+    updateLinkage(newState.vector);
+  };
 
   var theta = 0; 
   (function f() {
