@@ -17,15 +17,14 @@ window.onload = function () {
   
   var linkage = Object.create(FivebarExt.prototype);
   function updateLinkage(newVector) {
-    state.vector = newVector;
-
     // set the linkage being drawn to have the new vector
-    FivebarExt.apply(linkage, state.vector);
+    FivebarExt.apply(linkage, newVector);
 
     // calculate the traced path
     linkage.calcPath(NUM_POINTS, state.theta1rate, state.theta2rate, 0);
 
     // update ui elements
+    state.vector = newVector;
     ui.setLinkagePath(linkage);
     ui.update(state);
   };
