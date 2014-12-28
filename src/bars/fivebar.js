@@ -37,8 +37,9 @@ Fivebar.prototype.calcPath = function (numPoints, theta1rate, theta2rate, theta2
   var pointsList = [];
 
   numPoints *= theta1rate;
+  totalPoints = numPoints * theta2rate;
 
-  for (var i = 0; i < numPoints; i++) {
+  for (var i = 0; i < totalPoints; i++) {
     var theta1 = Math.PI * 2 * i / numPoints;
     var theta2 = theta1 * theta2rate / theta1rate + theta2phase;
     pointsList.push(this.calcPoints(theta1, theta2));

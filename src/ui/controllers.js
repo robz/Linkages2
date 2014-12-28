@@ -1,7 +1,6 @@
 var makeControllers = function (state, canvasWidth, canvasHeight, onUpdate) {
   var CENTER_X = canvasWidth/2;
   var CENTER_Y = canvasHeight/2;
-  console.log(CENTER_X, CENTER_Y);
 
   var pi2 = Math.PI * 2;
   var MAX_BAR_LEN = 500;
@@ -11,62 +10,84 @@ var makeControllers = function (state, canvasWidth, canvasHeight, onUpdate) {
   var f_pos_x = function (x) { return (x - .5) * 2 * CENTER_X; };
   var f_pos_y = function (x) { return (x - .5) * 2 * CENTER_Y; };
   var f_angle = function (x) { return x * pi2; };
+  var f_rate = function (x) { return Math.floor(x*10 + 1); }
   
-  var f_bar_inverse = function (v, i) { return v[i] / MAX_BAR_LEN; };
-  var f_bar_neg_inverse = function (v, i) { return v[i] / MAX_BAR_LEN/ 2 + .5; };
-  var f_pos_x_inverse = function (v, i) { return v[i] / 2 / CENTER_X + .5; };
-  var f_pos_y_inverse = function (v, i) { return v[i] / 2 / CENTER_Y + .5; };
-  var f_angle_inverse = function (v, i) { return (v[i] + pi2) % pi2 / pi2; };
+  var f_bar_inverse = function (value) { return value / MAX_BAR_LEN; };
+  var f_bar_neg_inverse = function (value) { return value / MAX_BAR_LEN/ 2 + .5; };
+  var f_pos_x_inverse = function (value) { return value / 2 / CENTER_X + .5; };
+  var f_pos_y_inverse = function (value) { return value / 2 / CENTER_Y + .5; };
+  var f_angle_inverse = function (value) { return (value + pi2) % pi2 / pi2; };
 
-  var g_regular = function (vector, value, i) { 
-    vector[i] = value;
-    return vector;
+  var g_regular = function (state, value, i) { 
+    state.vector[i] = value;
+    return state;
   };
-  var g_translate_x = function (vector, value) {
-    var diff = value - vector[0];
-    vector[0] += diff;
-    vector[2] += diff;
-    return vector;
+  var g_translate_x = function (state, value) {
+    var diff = value - state.vector[0];
+    state.vector[0] += diff;
+    state.vector[2] += diff;
+    return state;
   };
-  var g_translate_y = function (vector, value) {
-    var diff = value - vector[1];
-    vector[1] += diff;
-    vector[3] += diff;
-    return vector;
+  var g_translate_y = function (state, value) {
+    var diff = value - state.vector[1];
+    state.vector[1] += diff;
+    state.vector[3] += diff;
+    return state;
   };
-  var g_rotate_p2 = function (vector, value) {
+  var g_rotate_p2 = function (state, value) {
     var angle = value;
-    var dx = vector[2] - vector[0];
-    var dy = vector[3] - vector[1];
+    var dx = state.vector[2] - state.vector[0];
+    var dy = state.vector[3] - state.vector[1];
     var dist = Math.sqrt(dx*dx + dy*dy);
-    vector[2] = vector[0] + dist * Math.cos(angle);
-    vector[3] = vector[1] + dist * Math.sin(angle);
-    return vector; 
+    state.vector[2] = state.vector[0] + dist * Math.cos(angle);
+    state.vector[3] = state.vector[1] + dist * Math.sin(angle);
+    return state; 
   };
-  var g_p12dist = function (vector, value) {
-    var angle = Math.atan2(vector[3] - vector[1], vector[2] - vector[0]);
+  var g_p12dist = function (state, value) {
+    var angle = Math.atan2(
+      state.vector[3] - state.vector[1], 
+      state.vector[2] - state.vector[0]
+    );
     var dist = value;
-    vector[2] = vector[0] + dist * Math.cos(angle);
-    vector[3] = vector[1] + dist * Math.sin(angle);
-    return vector;
+    state.vector[2] = state.vector[0] + dist * Math.cos(angle);
+    state.vector[3] = state.vector[1] + dist * Math.sin(angle);
+    return state;
   };
+  var g_theta1rate = function (state, value) {
+    state.theta1rate = value; 
+    console.log(state);
+    return state;
+  }
+  var g_theta2rate = function (state, value) {
+    state.theta2rate = value; 
+    return state;
+  }
 
-  var g_translate_x_inverse = function (v, i) {
-    return f_pos_x_inverse(v, 0);
+  var g_translate_x_inverse = function () {
+    return f_pos_x_inverse(state.vector[0]);
   };
-  var g_translate_y_inverse = function (v, i) {
-    return f_pos_y_inverse(v, 1);
+  var g_translate_y_inverse = function () {
+    return f_pos_y_inverse(state.vector[1]);
   };
-  var g_rotate_p2_inverse = function (v, i) {
-    var angle = Math.atan2(v[3] - v[1], v[2] - v[0]);
+  var g_rotate_p2_inverse = function () {
+    var angle = Math.atan2(
+      state.vector[3] - state.vector[1], 
+      state.vector[2] - state.vector[0]
+    );
     return (angle + pi2) % pi2 / pi2;
   };
-  var g_p12dist_inverse = function (v, i) {
-    var dx = v[2] - v[0];
-    var dy = v[3] - v[1];
+  var g_p12dist_inverse = function () {
+    var dx = state.vector[2] - state.vector[0];
+    var dy = state.vector[3] - state.vector[1];
     var dist = Math.sqrt(dx*dx + dy*dy);
     return dist / MAX_BAR_LEN;
   };
+  var g_theta1rate_inverse = function () {
+    return state.theta1rate/10;
+  }
+  var g_theta2rate_inverse = function () {
+    return state.theta2rate/10;
+  }
 
   var controllers = [
     { id: 'c1',  f: f_pos_x,   f_inv: f_pos_x_inverse,       g: g_regular },
@@ -83,24 +104,37 @@ var makeControllers = function (state, canvasWidth, canvasHeight, onUpdate) {
     { id: 'c12', f: f_pos_y,   f_inv: g_translate_y_inverse, g: g_translate_y },
     { id: 'c13', f: f_angle,   f_inv: g_rotate_p2_inverse,   g: g_rotate_p2 },
     { id: 'c14', f: f_bar,     f_inv: g_p12dist_inverse,     g: g_p12dist },
+    { id: 'c15', f: f_rate,    f_inv: g_theta1rate_inverse,  g: g_theta1rate },
+    { id: 'c16', f: f_rate,    f_inv: g_theta2rate_inverse,  g: g_theta2rate },
   ];
+
+  function makeOnInput(info, index) {
+    return function (value) {
+      var newState = info.g({ 
+        vector: state.vector.slice(), 
+        theta1rate: state.theta1rate,
+        theta2rate: state.theta2rate,
+      }, value, index);
+
+      try {
+        onUpdate(newState);
+      } catch (err) {
+        onUpdate(state);
+      }
+    };
+  }
 
   controllers.forEach(
     function (info, index) {
-      var elem = document.getElementById(info.id);
-      elem.value = info.f_inv(state.vector, index) * 100;
-      elem.oninput = function (e) {
-        var value = info.f(e.target.valueAsNumber / 100);
-        var oldValue = state.vector[index];
-        var newVector = info.g(state.vector.slice(), value, index);
-        try {
-          onUpdate(newVector);
-        } catch (err) {
-          onUpdate(state.vector);
-        }
-      };
+      controllers[index].elem = makeController(
+        info.id, 
+        state.vector[index],
+        info.f,
+        info.f_inv,
+        makeOnInput(info, index)
+      );
     }
   );
-  
+
   return controllers;
 };

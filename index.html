@@ -6,6 +6,10 @@
   float: left;
 }
 
+#spaceAfterImportButton {
+  height: 80px;
+}
+
 textarea {
   margin: 0;
   padding: 0;
@@ -25,17 +29,25 @@ body {
 
 .linkage_control {
   width: 190px;
+  margin-top: 0px;
+  margin-bottom: 10px;
 }
 
 .linkage_control_desc {
   margin-left: 10px; 
-  margin-top: 10px; 
+  margin-bottom: 0px;
   font-size: 12px;
 }
 
 #importButton {
   width: 200px;
   height: 40px;
+  margin-bottom: 20px;
+}
+
+.controlButton {
+  width: 200px;
+  height: 20px;
 }
 
 </style>
@@ -44,6 +56,7 @@ body {
 <script src="src/bars/fivebar.js"></script>
 <script src="src/bars/drawbars.js"></script>
 
+<script src="src/ui/controller.js"></script>
 <script src="src/ui/controllers.js"></script>
 <script src="src/ui/ui.js"></script>
 
@@ -96,6 +109,14 @@ body {
   <textarea id="outputTA"></textarea>
   <textarea id="inputTA"></textarea>
   <button id="importButton">IMPORT</button>
+  <div id="spaceAfterImportButton"></div>
 
+  <div class="linkage_control_desc">exploration coefficient</div>
+  <input class="linkage_control" type="range" id="exploreRange"/>
+
+  <button class="controlButton" id="pathOptimizeButton">Optimize to path</button>
+  <button class="controlButton" id="segmentOptimizeButton">Optimize to segment</button>
+  <button class="controlButton" id="smartSegmentOptimizeButton">Optimize to segment + current</button>
+  <button class="controlButton" id="stopOptmizationButton">Stop optmization</button>
 </body>
 </html>

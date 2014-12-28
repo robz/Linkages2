@@ -2,31 +2,34 @@ function LinkageOptimizer(LinkageClass, numPoints, state) {
   if (!(this instanceof LinkageOptimizer)) { throw Error('lacking new'); }
 
   this.MAX_OPTIMIZE_STEPS = 3000;
-  this.SCALE = 20;
   this.PERIOD = 10;
  
   this.isOptimizing = false;
+  this.numPoints = numPoints;
+  this.state = state;
 
-  var linkage = Object.create(LinkageClass.prototype);
-  this.applyVector = Function.prototype.apply.bind(LinkageClass, linkage);
-  this.calcPath = linkage.calcPath.bind(
-    linkage, 
-    numPoints, 
-    state.theta1rate, 
-    state.theta2rate, 
-    0
-  );
+  this.linkage = Object.create(LinkageClass.prototype);
+  this.applyVector = Function.prototype.apply.bind(LinkageClass, this.linkage);
 }
 
 LinkageOptimizer.prototype.start = function (
   desiredPath, 
   initialVector, 
-  update
+  update,
+  randomizeValue
 ) {
   if (this.isOptimizing) {
     console.log('not done with previous optimization!');
     return;
   }
+  
+  this.calcPath = this.linkage.calcPath.bind(
+    this.linkage, 
+    this.numPoints, 
+    this.state.theta1rate, 
+    this.state.theta2rate, 
+    0
+  );
 
   this.isOptimizing = true;
 
@@ -36,7 +39,7 @@ LinkageOptimizer.prototype.start = function (
     this.applyVector,
     this.calcPath,
     desiredPath,
-    this.SCALE
+    randomizeValue 
   );
     
   var count = 0;
@@ -66,12 +69,12 @@ function makeLinkageOptimizeStep(applyVector, calcPath, desiredPath, scale) {
       Math.abs(desiredAverage.x - average.x) + 
       Math.abs(desiredAverage.y - average.y);
 
-    var d1 = calcMinDistSum(path, desiredPath);
-    var d2 = calcMinDistSum(desiredPath, path);
+    //var d1 = calcMinDistSum(path, desiredPath);
+    //var d2 = calcMinDistSum(desiredPath, path);
+    //return d1 + d2;
 
     var maxMinDist1 = calcMaxMinDist(path, desiredPath);
     var maxMinDist2 = calcMaxMinDist(desiredPath, path);
-
     return maxMinDist2 + maxMinDist1;
   }
 

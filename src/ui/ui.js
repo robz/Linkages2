@@ -1,9 +1,28 @@
-var makeUI = function (_canvas, _outputTA, _inputTA, _importButton, state) {
-  var that = {};
-  
-  _canvas.width = document.body.clientWidth - 400;
-  _canvas.height = document.body.clientHeight;
+var makeUI = function (
+  _canvas, 
+  _outputTA, 
+  _inputTA, 
+  _importButton, 
+  _optimizeButton, 
+  _explorationInputId,
+  _stopOptmizeButton,
+  state
+) {
+  var IMPORT_BUTTON_HEIGHT = _importButton.clientHeight;
+  var TA_WIDTH = 200; 
 
+  var that = {};
+
+  // empty event handlers
+  that.onPathDrawn = function () {};
+  that.onImportButtonPressed = function () {};
+  that.onControllerUpdate = function () {};
+  that.onOptimizePressed = function () {};
+  that.onExploreChange = function () {};
+  that.onStopOptmize = function () {};
+
+  _canvas.width = document.body.clientWidth - TA_WIDTH*2;
+  _canvas.height = document.body.clientHeight;
   _canvas.onmousedown = onMouseDown;
   _canvas.onmousemove = onMouseMove;
   _canvas.onmouseup = onMouseUp;
@@ -12,10 +31,19 @@ var makeUI = function (_canvas, _outputTA, _inputTA, _importButton, state) {
   that.canvasHeight = _canvas.height;
   that.OFFSET_X = _canvas.width/2;
   that.OFFSET_Y = _canvas.height/2;
+  
+  var controllers = makeControllers(
+    state, 
+    that.canvasWidth, 
+    that.canvasHeight, 
+    function (state) { 
+      that.onControllerUpdate(state); 
+    }
+  );
 
   [_outputTA, _inputTA].forEach(function (ta) { 
-    ta.style.width = 200;
-    ta.style.height = (document.body.clientHeight - 40)/2;
+    ta.style.height = (document.body.clientHeight - 10*IMPORT_BUTTON_HEIGHT)/2;
+    ta.style.width = TA_WIDTH;
   });
   
   var ctx = _canvas.getContext('2d');
@@ -24,10 +52,34 @@ var makeUI = function (_canvas, _outputTA, _inputTA, _importButton, state) {
 
   _importButton.onmousedown = function () {
     that.onImportButtonPressed(_inputTA.value);
-  }
+  };
+
+  _optimizeButton.onmousedown = function () {
+    that.onOptimizePressed(path.slice());
+    flagPathToBeCleared = true;
+  };
+
+  _stopOptmizeButton.onmousedown = function () {
+    that.onStopOptmize();
+  };
+
+  makeController(
+    _explorationInputId, 
+    20, 
+    function (value) {
+      return value*100;
+    }, 
+    function (value) {
+      return value/100;
+    }, 
+    function (value) {
+      that.onExploreChange(value);
+    }
+  );
 
   var path = [];
   var mouseIsDown = false;
+  var flagPathToBeCleared = false;
 
   function addToPath(e) {
     var x = e.clientX - that.OFFSET_X - 200;
@@ -37,7 +89,10 @@ var makeUI = function (_canvas, _outputTA, _inputTA, _importButton, state) {
 
   function onMouseDown(e) {
     mouseIsDown = true;
-    path = [];
+    if (flagPathToBeCleared) {
+      path = [];
+      flagPathToBeCleared = false;
+    }
     addToPath(e);
   };
 
@@ -78,10 +133,6 @@ var makeUI = function (_canvas, _outputTA, _inputTA, _importButton, state) {
     ctx.restore();
   }
 
-  that.onPathDrawn = function () {};
-  that.onImportButtonPressed = function () {};
-  that.onControllerUpdate = function () {};
-
   that.setLinkagePath = function (linkage) {
     ctx.clearRect(-that.OFFSET_X, -that.OFFSET_Y, _canvas.width, _canvas.height);
     ctx.save();
@@ -117,19 +168,12 @@ var makeUI = function (_canvas, _outputTA, _inputTA, _importButton, state) {
     // draw the user-drawn path
     drawPath();
   };
-  
-  var controllers = makeControllers(
-    state, 
-    that.canvasWidth, 
-    that.canvasHeight, 
-    function (v) { that.onControllerUpdate(v); }
-  );
 
   that.update = function (state) {
     // range inputs
     controllers.forEach(function (controller, i) {
       document.getElementById(controller.id).value = 
-        controller.f_inv(state.vector, i) * 100;
+        controller.f_inv(state.vector[i]) * 100;
     });
 
     // export text area
