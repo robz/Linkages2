@@ -1,6 +1,6 @@
 addExport('makeControllers',
 
-function (state, canvasWidth, canvasHeight, onUpdate) {
+function (controllerIDs, state, canvasWidth, canvasHeight, onUpdate) {
   var makeController = require('makeController');
 
   var CENTER_X = canvasWidth/2;
@@ -94,22 +94,22 @@ function (state, canvasWidth, canvasHeight, onUpdate) {
   }
 
   var controllers = [
-    { id: 'c1',  f: f_pos_x,   f_inv: f_pos_x_inverse,       g: g_regular },
-    { id: 'c2',  f: f_pos_y,   f_inv: f_pos_y_inverse,       g: g_regular },
-    { id: 'c3',  f: f_pos_x,   f_inv: f_pos_x_inverse,       g: g_regular },
-    { id: 'c4',  f: f_pos_y,   f_inv: f_pos_y_inverse,       g: g_regular },
-    { id: 'c5',  f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
-    { id: 'c6',  f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
-    { id: 'c7',  f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
-    { id: 'c8',  f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
-    { id: 'c9',  f: f_angle,   f_inv: f_angle_inverse,       g: g_regular },
-    { id: 'c10', f: f_bar_neg, f_inv: f_bar_neg_inverse,     g: g_regular },
-    { id: 'c11', f: f_pos_x,   f_inv: g_translate_x_inverse, g: g_translate_x },
-    { id: 'c12', f: f_pos_y,   f_inv: g_translate_y_inverse, g: g_translate_y },
-    { id: 'c13', f: f_angle,   f_inv: g_rotate_p2_inverse,   g: g_rotate_p2 },
-    { id: 'c14', f: f_bar,     f_inv: g_p12dist_inverse,     g: g_p12dist },
-    { id: 'c15', f: f_rate,    f_inv: g_theta1rate_inverse,  g: g_theta1rate },
-    { id: 'c16', f: f_rate,    f_inv: g_theta2rate_inverse,  g: g_theta2rate },
+    { f: f_pos_x,   f_inv: f_pos_x_inverse,       g: g_regular },
+    { f: f_pos_y,   f_inv: f_pos_y_inverse,       g: g_regular },
+    { f: f_pos_x,   f_inv: f_pos_x_inverse,       g: g_regular },
+    { f: f_pos_y,   f_inv: f_pos_y_inverse,       g: g_regular },
+    { f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
+    { f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
+    { f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
+    { f: f_bar,     f_inv: f_bar_inverse,         g: g_regular },
+    { f: f_angle,   f_inv: f_angle_inverse,       g: g_regular },
+    { f: f_bar_neg, f_inv: f_bar_neg_inverse,     g: g_regular },
+    { f: f_pos_x,   f_inv: g_translate_x_inverse, g: g_translate_x },
+    { f: f_pos_y,   f_inv: g_translate_y_inverse, g: g_translate_y },
+    { f: f_angle,   f_inv: g_rotate_p2_inverse,   g: g_rotate_p2 },
+    { f: f_bar,     f_inv: g_p12dist_inverse,     g: g_p12dist },
+    { f: f_rate,    f_inv: g_theta1rate_inverse,  g: g_theta1rate },
+    { f: f_rate,    f_inv: g_theta2rate_inverse,  g: g_theta2rate },
   ];
 
   function makeOnInput(info, index) {
@@ -131,7 +131,7 @@ function (state, canvasWidth, canvasHeight, onUpdate) {
   controllers.forEach(
     function (info, index) {
       controllers[index].elem = makeController(
-        info.id, 
+        controllerIDs[index], 
         state.vector[index],
         info.f,
         info.f_inv,

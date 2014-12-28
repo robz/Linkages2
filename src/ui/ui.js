@@ -1,19 +1,18 @@
 addExport('makeUI', 
   
-function (
-  _canvas, 
-  _outputTA, 
-  _inputTA, 
-  _importButton, 
-  _optimizeButton, 
-  _explorationInputId,
-  _stopOptmizeButton,
-  state
-) {
+function (elementIDs, state) {
   var makeControllers = require('makeControllers');
   var makeController = require('makeController');
 
-  var IMPORT_BUTTON_HEIGHT = _importButton.clientHeight;
+  // elements
+  var canvas = document.getElementById(elementIDs.canvas);
+  var exportTextarea = document.getElementById(elementIDs.exportTextarea);
+  var importTextarea = document.getElementById(elementIDs.importTextarea);
+  var importButton = document.getElementById(elementIDs.importButton);
+  var pathOptimizeButton = document.getElementById(elementIDs.pathOptimizeButton);
+  var stopOptmizationButton = document.getElementById(elementIDs.stopOptmizationButton);
+
+  var IMPORT_BUTTON_HEIGHT = importButton.clientHeight;
   var TA_WIDTH = 200; 
 
   var that = {};
@@ -26,18 +25,19 @@ function (
   that.onExploreChange = function () {};
   that.onStopOptmize = function () {};
 
-  _canvas.width = document.body.clientWidth - TA_WIDTH*2;
-  _canvas.height = document.body.clientHeight;
-  _canvas.onmousedown = onMouseDown;
-  _canvas.onmousemove = onMouseMove;
-  _canvas.onmouseup = onMouseUp;
+  canvas.width = document.body.clientWidth - TA_WIDTH*2;
+  canvas.height = document.body.clientHeight;
+  canvas.onmousedown = onMouseDown;
+  canvas.onmousemove = onMouseMove;
+  canvas.onmouseup = onMouseUp;
 
-  that.canvasWidth = _canvas.width;
-  that.canvasHeight = _canvas.height;
-  that.OFFSET_X = _canvas.width/2;
-  that.OFFSET_Y = _canvas.height/2;
+  that.canvasWidth = canvas.width;
+  that.canvasHeight = canvas.height;
+  that.OFFSET_X = canvas.width/2;
+  that.OFFSET_Y = canvas.height/2;
   
   var controllers = makeControllers(
+    elementIDs.stateControllers,
     state, 
     that.canvasWidth, 
     that.canvasHeight, 
@@ -46,30 +46,30 @@ function (
     }
   );
 
-  [_outputTA, _inputTA].forEach(function (ta) { 
+  [exportTextarea, importTextarea].forEach(function (ta) { 
     ta.style.height = (document.body.clientHeight - 10*IMPORT_BUTTON_HEIGHT)/2;
     ta.style.width = TA_WIDTH;
   });
   
-  var ctx = _canvas.getContext('2d');
+  var ctx = canvas.getContext('2d');
   ctx.translate(that.OFFSET_X, that.OFFSET_Y);
-  linkagePathBuffer = ctx.getImageData(0, 0, _canvas.width, _canvas.height)
+  linkagePathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
-  _importButton.onmousedown = function () {
-    that.onImportButtonPressed(_inputTA.value);
+  importButton.onmousedown = function () {
+    that.onImportButtonPressed(importTextarea.value);
   };
 
-  _optimizeButton.onmousedown = function () {
+  pathOptimizeButton .onmousedown = function () {
     that.onOptimizePressed(path.slice());
     flagPathToBeCleared = true;
   };
 
-  _stopOptmizeButton.onmousedown = function () {
+  stopOptmizationButton.onmousedown = function () {
     that.onStopOptmize();
   };
 
   makeController(
-    _explorationInputId, 
+    elementIDs.exploreController, 
     20, 
     function (value) {
       return value*100;
@@ -139,13 +139,13 @@ function (
   }
 
   that.setLinkagePath = function (linkage) {
-    ctx.clearRect(-that.OFFSET_X, -that.OFFSET_Y, _canvas.width, _canvas.height);
+    ctx.clearRect(-that.OFFSET_X, -that.OFFSET_Y, canvas.width, canvas.height);
     ctx.save();
     ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     linkage.drawPath(ctx);
     ctx.restore();
-    linkagePathBuffer = ctx.getImageData(0, 0, _canvas.width, _canvas.height)
+    linkagePathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
   };
 
   function drawLine(p1x, p1y, p2x, p2y) {
@@ -164,8 +164,8 @@ function (
     ctx.putImageData(linkagePathBuffer, 0, 0);
 
     // draw the axis lines
-    drawLine(-_canvas.width/2, 0, _canvas.width/2, 0);
-    drawLine(0, -_canvas.height/2, 0, _canvas.height/2);
+    drawLine(-canvas.width/2, 0, canvas.width/2, 0);
+    drawLine(0, -canvas.height/2, 0, canvas.height/2);
 
     // draw the linkage itself
     linkage.draw(ctx);
@@ -177,12 +177,11 @@ function (
   that.update = function (state) {
     // range inputs
     controllers.forEach(function (controller, i) {
-      document.getElementById(controller.id).value = 
-        controller.f_inv(state.vector[i]) * 100;
+      controller.elem.value = controller.f_inv(state.vector[i]) * 100;
     });
 
     // export text area
-    _outputTA.value = JSON.stringify(state);
+    exportTextarea.value = JSON.stringify(state);
   }
 
   return that;

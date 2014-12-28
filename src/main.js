@@ -1,26 +1,34 @@
 window.onload = function () {
-  var makeUI = require('makeUI');
-  var LinkageOptimizer = require('LinkageOptimizer');
   var FivebarExt = require('FivebarExt');
+  var LinkageOptimizer = require('LinkageOptimizer');
+  var makeUI = require('makeUI');
 
   var NUM_POINTS = 100;
+
   var randomizeValue = 20;
   var state = {
     vector: [-150, 0, 150, 0, 40, 200, 200, 50, Math.PI/6, 80],
-    theta1rate: 1,
-    theta2rate: 3,
+    theta1rate: 2,
+    theta2rate: 1,
   };
 
   var linkage = Object.create(FivebarExt.prototype);
   var optimizer = new LinkageOptimizer(FivebarExt, NUM_POINTS, state);
   var ui = makeUI(
-    document.getElementById('my_canvas'),
-    document.getElementById('outputTA'),
-    document.getElementById('inputTA'),
-    document.getElementById('importButton'),
-    document.getElementById('pathOptimizeButton'),
-    'exploreRange',
-    document.getElementById('stopOptmizationButton'),
+    {
+      canvas: 'my_canvas',
+      exportTextarea: 'outputTA',
+      importTextarea: 'inputTA',
+      importButton: 'importButton',
+      pathOptimizeButton: 'pathOptimizeButton',
+      exploreController: 'exploreRange',
+      stopOptmizationButton: 'stopOptmizationButton',
+      stateControllers: (function () {
+        var arr = [];
+        for (var i = 1; i <= 16; i++) { arr.push('c' + i); } 
+        return arr;
+      }())
+    },
     state
   );
   
@@ -78,10 +86,12 @@ window.onload = function () {
     // calculate the traced path
     linkage.calcPath(NUM_POINTS, theta1rate, theta2rate, 0);
 
-    // update ui elements
+    // update "global" state
     state.vector = newVector;
     state.theta1rate = theta1rate; 
     state.theta2rate = theta2rate; 
+
+    // update ui elements
     ui.setLinkagePath(linkage);
     ui.update(state);
   };

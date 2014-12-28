@@ -33,7 +33,8 @@ addExport('optimizeStep',
       count + prevCount < maxCount
     );
 
-    // if our last attempt produced an invalid state, or a worse output, just return initial
+    // if our last attempt produced an invalid state, or a worse output, just 
+    // return initial
     if (newOutput === null || newError > initialError) {
       return {
         vector: initialVector,
@@ -60,7 +61,6 @@ addExport('optimizeStep',
 
     for (var ii = 0; ii < 50; ii++) {
       vector = optimizeStep(vector, calcOutput, measureError, scales);
-      console.log(vector, calcOutput(vector));
     }
   }
 

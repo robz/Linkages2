@@ -39,20 +39,35 @@
 
   Fivebar.prototype.calcPath = function (numPoints, theta1rate, theta2rate, theta2phase) {
     var pointsList = [];
+    var revs, ratio, theta1first;
 
-    numPoints *= theta1rate;
-    totalPoints = numPoints * theta2rate;
+    if (theta1rate <= theta2rate) {
+      revs = theta1rate; 
+      ratio = theta2rate / theta1rate;
+      theta1first = true;
+    } else {
+      revs = theta2rate;
+      ratio = theta1rate / theta2rate;
+      theta1first = false;
+    }
 
-    for (var i = 0; i < totalPoints; i++) {
-      var theta1 = Math.PI * 2 * i / numPoints;
-      var theta2 = theta1 * theta2rate / theta1rate + theta2phase;
-      pointsList.push(this.calcPoints(theta1, theta2));
+    var ii = 0;
+    for (var rev = 0; rev < revs; rev++) {
+      for (var jj = 0; jj < numPoints; jj++) {
+        var theta1 = Math.PI * 2 * ii / numPoints;
+        var theta2 = theta1 * ratio;
+        if (theta1first) {
+          pointsList.push(this.calcPoints(theta1, theta2 + theta2phase));
+        } else {
+          pointsList.push(this.calcPoints(theta2 + theta2phase, theta1));
+        }
+        ii += 1; 
+      }
     }
 
     this.path = pointsList;
     return pointsList;
   };
-
 
   var FivebarExt = function(p1x, p1y, p5x, p5y, a, b, c, d, thetaExt, dExt) {
     if (!(this instanceof FivebarExt)) { throw Error('lacking new'); }
