@@ -1,13 +1,18 @@
 window.onload = function () {
+  var makeUI = require('makeUI');
+  var LinkageOptimizer = require('LinkageOptimizer');
+  var FivebarExt = require('FivebarExt');
+
   var NUM_POINTS = 100;
   var randomizeValue = 20;
-
   var state = {
     vector: [-150, 0, 150, 0, 40, 200, 200, 50, Math.PI/6, 80],
     theta1rate: 1,
     theta2rate: 3,
   };
 
+  var linkage = Object.create(FivebarExt.prototype);
+  var optimizer = new LinkageOptimizer(FivebarExt, NUM_POINTS, state);
   var ui = makeUI(
     document.getElementById('my_canvas'),
     document.getElementById('outputTA'),
@@ -19,34 +24,20 @@ window.onload = function () {
     state
   );
   
-  var linkage = Object.create(FivebarExt.prototype);
-  function updateLinkage(newVector, theta1rate, theta2rate) {
-    theta1rate = theta1rate || state.theta1rate;
-    theta2rate = theta2rate || state.theta2rate;
+  ui.onExploreChange = function (value) {
+    randomizeValue = value;
+  };
 
-    // set the linkage being drawn to have the new vector
-    FivebarExt.apply(linkage, newVector);
-
-    // calculate the traced path
-    linkage.calcPath(NUM_POINTS, theta1rate, theta2rate, 0);
-
-    // update ui elements
-    state.vector = newVector;
-    state.theta1rate = theta1rate; 
-    state.theta2rate = theta2rate; 
-    ui.setLinkagePath(linkage);
-    ui.update(state);
+  ui.onStopOptmize = function () {
+    optimizer.isOptimizing = false;
   };
   
-  updateLinkage(state.vector);
-
   // range inputs update the linkage
   ui.onControllerUpdate = function (state) {
     updateLinkage(state.vector, state.theta1rate, state.theta2rate);
   };
  
   // run the optimizer after drawing a single stroke 
-  var optimizer = new LinkageOptimizer(FivebarExt, NUM_POINTS, state);
   ui.onOptimizePressed = function (path) {
     optimizer.start(path, state.vector, updateLinkage, randomizeValue);
   };
@@ -77,13 +68,25 @@ window.onload = function () {
     }
   };
 
-  ui.onExploreChange = function (value) {
-    randomizeValue = value;
-  };
+  function updateLinkage(newVector, theta1rate, theta2rate) {
+    theta1rate = theta1rate || state.theta1rate;
+    theta2rate = theta2rate || state.theta2rate;
 
-  ui.onStopOptmize = function () {
-    optimizer.isOptimizing = false;
+    // set the linkage being drawn to have the new vector
+    FivebarExt.apply(linkage, newVector);
+
+    // calculate the traced path
+    linkage.calcPath(NUM_POINTS, theta1rate, theta2rate, 0);
+
+    // update ui elements
+    state.vector = newVector;
+    state.theta1rate = theta1rate; 
+    state.theta2rate = theta2rate; 
+    ui.setLinkagePath(linkage);
+    ui.update(state);
   };
+  
+  updateLinkage(state.vector);
 
   var theta = 0; 
   (function f() {

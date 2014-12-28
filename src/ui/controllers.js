@@ -1,4 +1,8 @@
-var makeControllers = function (state, canvasWidth, canvasHeight, onUpdate) {
+addExport('makeControllers',
+
+function (state, canvasWidth, canvasHeight, onUpdate) {
+  var makeController = require('makeController');
+
   var CENTER_X = canvasWidth/2;
   var CENTER_Y = canvasHeight/2;
 
@@ -137,4 +141,4 @@ var makeControllers = function (state, canvasWidth, canvasHeight, onUpdate) {
   );
 
   return controllers;
-};
+});

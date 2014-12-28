@@ -1,4 +1,6 @@
-var makeUI = function (
+addExport('makeUI', 
+  
+function (
   _canvas, 
   _outputTA, 
   _inputTA, 
@@ -8,6 +10,9 @@ var makeUI = function (
   _stopOptmizeButton,
   state
 ) {
+  var makeControllers = require('makeControllers');
+  var makeController = require('makeController');
+
   var IMPORT_BUTTON_HEIGHT = _importButton.clientHeight;
   var TA_WIDTH = 200; 
 
@@ -181,4 +186,4 @@ var makeUI = function (
   }
 
   return that;
-};
+});

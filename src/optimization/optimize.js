@@ -1,5 +1,7 @@
-var optimizeStep = (function () {
-  function optimizeStep(
+addExport('optimizeStep',
+
+(function () {
+  return function(
     initialVector, 
     calcOutput, 
     measureError, 
@@ -63,4 +65,4 @@ var optimizeStep = (function () {
   }
 
   return optimizeStep;
-}());
+}()));

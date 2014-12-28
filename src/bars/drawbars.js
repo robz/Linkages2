@@ -1,4 +1,9 @@
 (function () {
+  var Fourbar = require('Fourbar'); 
+  var FourbarExt = require('FourbarExt'); 
+  var Fivebar = require('Fivebar'); 
+  var FivebarExt = require('FivebarExt'); 
+ 
   var radius = 3;
 
   function drawLines(ctx) {
