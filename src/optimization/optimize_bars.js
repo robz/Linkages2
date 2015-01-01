@@ -1,4 +1,6 @@
-addExport('LinkageOptimizer',
+/**
+ * @providesModule LinkageOptimizer
+ */
 
 (function () {
   var optimizeStep = require('optimizeStep');
@@ -49,19 +51,21 @@ addExport('LinkageOptimizer',
       
     var count = 0;
 
-    setTimeout(function f() {
+    var f = function () {
       var res = linkageOptimizeStep(vector, count, this.MAX_OPTIMIZE_STEPS);
       vector = res.vector;
-      update(vector);
+      update({vector:vector});
 
       count += res.count;
 
       if (this.isOptimizing && res.error > 1 && count < this.MAX_OPTIMIZE_STEPS) {
-        setTimeout(f.bind(this), this.PERIOD);
+        setTimeout(f, this.PERIOD);
       } else {
         this.isOptimizing = false;
       }
-    }.bind(this), this.PERIOD);
+    }.bind(this);
+    
+    setTimeout(f, this.PERIOD);
   };
 
   function makeLinkageOptimizeStep(applyVector, calcPath, desiredPath, scale) {
@@ -176,5 +180,5 @@ addExport('LinkageOptimizer',
     }
   }
 
-  return LinkageOptimizer;
-}()));
+  addModule('LinkageOptimizer', LinkageOptimizer);
+}());

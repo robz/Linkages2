@@ -1,3 +1,8 @@
+/**
+ * @providesModule Fourbar 
+ * @providesModule FourbarExt
+ */
+
 (function () {
   var Fourbar = function (p1x, p1y, p4x, p4y, a, b, c) {
     if (!(this instanceof Fourbar)) { throw Error('lacking new'); }
@@ -117,6 +122,6 @@
     return points;
   };
 
-  addExport('Fourbar', Fourbar);
-  addExport('FourbarExt', FourbarExt);
+  addModule('Fourbar', Fourbar);
+  addModule('FourbarExt', FourbarExt);
 }());

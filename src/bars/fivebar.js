@@ -1,3 +1,8 @@
+/**
+ * @providesModule Fivebar 
+ * @providesModule FivebarExt
+ */
+
 (function () {
   var Fourbar = require('Fourbar');
   var FourbarExt = require('FourbarExt');
@@ -59,7 +64,7 @@
         if (theta1first) {
           pointsList.push(this.calcPoints(theta1, theta2 + theta2phase));
         } else {
-          pointsList.push(this.calcPoints(theta2 + theta2phase, theta1));
+          pointsList.push(this.calcPoints(theta2, theta1 + theta2phase));
         }
         ii += 1; 
       }
@@ -82,6 +87,6 @@
   FivebarExt.prototype = new Fivebar();
   FivebarExt.prototype.constructor = FivebarExt;
 
-  addExport('Fivebar', Fivebar);
-  addExport('FivebarExt', FivebarExt);
+  addModule('Fivebar', Fivebar);
+  addModule('FivebarExt', FivebarExt);
 }());

@@ -1,4 +1,8 @@
-addExport('makeUI', 
+/**
+ * @providesModule makeUI
+ */
+
+addModule('makeUI', 
   
 function (elementIDs, state) {
   var makeControllers = require('makeControllers');

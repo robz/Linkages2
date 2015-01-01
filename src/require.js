@@ -1,22 +1,23 @@
+// these should be the only globals added by this entire app
 var require;
-var addExport;
+var addModule;
 
 (function () {
-  var Modules = {};
+  var modules = {};
 
-  require = function require(moduleName) {
-    if (!Modules[moduleName]) { 
+  require = function (moduleName) {
+    if (!modules[moduleName]) { 
       throw Error('module ' + moduleName + ' does not exist'); 
     }
 
-    return Modules[moduleName];
+    return modules[moduleName];
   };
 
-  addExport = function addExport(moduleName, module) {
-    if (Modules[moduleName]) { 
+  addModule = function (moduleName, module) {
+    if (modules[moduleName]) { 
       throw Error('module ' + moduleName + ' already added'); 
     }
     
-    Modules[moduleName] = module;
+    modules[moduleName] = module;
   };
 }());

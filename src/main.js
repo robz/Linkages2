@@ -10,6 +10,7 @@ window.onload = function () {
     vector: [-150, 0, 150, 0, 40, 200, 200, 50, Math.PI/6, 80],
     theta1rate: 2,
     theta2rate: 1,
+    theta2phase: 0,
   };
 
   var linkage = Object.create(FivebarExt.prototype);
@@ -25,7 +26,7 @@ window.onload = function () {
       stopOptmizationButton: 'stopOptmizationButton',
       stateControllers: (function () {
         var arr = [];
-        for (var i = 1; i <= 16; i++) { arr.push('c' + i); } 
+        for (var i = 1; i <= 18; i++) { arr.push('c' + i); } 
         return arr;
       }())
     },
@@ -42,7 +43,7 @@ window.onload = function () {
   
   // range inputs update the linkage
   ui.onControllerUpdate = function (state) {
-    updateLinkage(state.vector, state.theta1rate, state.theta2rate);
+    updateLinkage(state);
   };
  
   // run the optimizer after drawing a single stroke 
@@ -62,6 +63,7 @@ window.onload = function () {
     if (
       newState.theta1rate === undefined || 
       newState.theta2rate === undefined ||
+      newState.theta2phase === undefined ||
       newState.vector === undefined
     ) {
       console.log('import does not contain required properties:', newState);
@@ -69,39 +71,45 @@ window.onload = function () {
     }
  
     try {
-      updateLinkage(newState.vector, newState.theta1rate, newState.theta2rate);
+      updateLinkage(newState);
     } catch (err) {
       console.log('error while importing: invalid configuration', err); 
-      updateLinkage(state.vector);
+      updateLinkage(state);
     }
   };
 
-  function updateLinkage(newVector, theta1rate, theta2rate) {
-    theta1rate = theta1rate || state.theta1rate;
-    theta2rate = theta2rate || state.theta2rate;
+  function updateLinkage(newState) {
+    theta1rate = newState.theta1rate || state.theta1rate;
+    theta2rate = newState.theta2rate || state.theta2rate;
+    theta2phase = (newState.theta2phase !== undefined) 
+      ? newState.theta2phase
+      : state.theta2phase;
 
     // set the linkage being drawn to have the new vector
-    FivebarExt.apply(linkage, newVector);
+    FivebarExt.apply(linkage, newState.vector);
 
     // calculate the traced path
-    linkage.calcPath(NUM_POINTS, theta1rate, theta2rate, 0);
+    // if the linkage was in an invalid configuration, this will throw
+    linkage.calcPath(NUM_POINTS, theta1rate, theta2rate, theta2phase);
 
     // update "global" state
-    state.vector = newVector;
+    state.vector = newState.vector;
     state.theta1rate = theta1rate; 
     state.theta2rate = theta2rate; 
+    state.theta2phase = theta2phase; 
 
     // update ui elements
     ui.setLinkagePath(linkage);
     ui.update(state);
   };
   
-  updateLinkage(state.vector);
+  updateLinkage(state);
 
   var theta = 0; 
   (function f() {
     theta += .01;
-    linkage.calcPoints(theta, theta * state.theta2rate / state.theta1rate);
+    var theta2 = theta * state.theta2rate / state.theta1rate + state.theta2phase;
+    linkage.calcPoints(theta, theta2);
     ui.draw(linkage);
     requestAnimationFrame(f);
   }());

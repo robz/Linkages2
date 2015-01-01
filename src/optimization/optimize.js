@@ -1,7 +1,9 @@
-addExport('optimizeStep',
+/**
+ * @providesModule optimizeStep 
+ */
 
 (function () {
-  return function(
+  function optimizeStep(
     initialVector, 
     calcOutput, 
     measureError, 
@@ -62,7 +64,7 @@ addExport('optimizeStep',
     for (var ii = 0; ii < 50; ii++) {
       vector = optimizeStep(vector, calcOutput, measureError, scales);
     }
-  }
+  } 
 
-  return optimizeStep;
-}()));
+  addModule('optimizeStep', optimizeStep);
+}());

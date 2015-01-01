@@ -1,4 +1,8 @@
-addExport('makeControllers',
+/**
+ * @providesModule makeControllers
+ */
+
+addModule('makeControllers',
 
 function (controllerIDs, state, canvasWidth, canvasHeight, onUpdate) {
   var makeController = require('makeController');
@@ -15,6 +19,7 @@ function (controllerIDs, state, canvasWidth, canvasHeight, onUpdate) {
   var f_pos_y = function (x) { return (x - .5) * 2 * CENTER_Y; };
   var f_angle = function (x) { return x * pi2; };
   var f_rate = function (x) { return Math.floor(x*10 + 1); }
+  var f_scale = function (x) { return Math.floor(x*10 + 1); }
   
   var f_bar_inverse = function (value) { return value / MAX_BAR_LEN; };
   var f_bar_neg_inverse = function (value) { return value / MAX_BAR_LEN/ 2 + .5; };
@@ -59,12 +64,39 @@ function (controllerIDs, state, canvasWidth, canvasHeight, onUpdate) {
   };
   var g_theta1rate = function (state, value) {
     state.theta1rate = value; 
-    console.log(state);
     return state;
   }
   var g_theta2rate = function (state, value) {
     state.theta2rate = value; 
     return state;
+  }
+  var g_theta2phase = function (state, value) {
+    state.theta2phase = value;
+    return state;
+  }
+  var currentScale = 1;
+  var g_scale = function (state, value) {
+    // scale bar lengths
+    [4, 5, 6, 7, 9].forEach(function (i) { 
+      state.vector[i] *= value; 
+    });
+
+    // scale p2 from p1
+    var x1 = state.vector[0];    
+    var y1 = state.vector[1];    
+    var x2 = state.vector[2];    
+    var y2 = state.vector[3];    
+
+    x2 = x1 + (x2 - x1) * value;
+    y2 = y1 + (y2 - y1) * value;
+
+    state.vector[2] = x2;
+    state.vector[3] = y2;
+
+    // set for future use
+    currentScale = value;
+
+    return state; 
   }
 
   var g_translate_x_inverse = function () {
@@ -88,10 +120,16 @@ function (controllerIDs, state, canvasWidth, canvasHeight, onUpdate) {
   };
   var g_theta1rate_inverse = function () {
     return state.theta1rate/10;
-  }
+  };
   var g_theta2rate_inverse = function () {
     return state.theta2rate/10;
-  }
+  };
+  var g_theta2phase_inverse = function () {
+    return f_angle_inverse(state.theta2phase);
+  };
+  var g_scale_inverse = function () {
+    return currentScale/10;
+  };
 
   var controllers = [
     { f: f_pos_x,   f_inv: f_pos_x_inverse,       g: g_regular },
@@ -110,6 +148,8 @@ function (controllerIDs, state, canvasWidth, canvasHeight, onUpdate) {
     { f: f_bar,     f_inv: g_p12dist_inverse,     g: g_p12dist },
     { f: f_rate,    f_inv: g_theta1rate_inverse,  g: g_theta1rate },
     { f: f_rate,    f_inv: g_theta2rate_inverse,  g: g_theta2rate },
+    { f: f_angle,   f_inv: g_theta2phase_inverse, g: g_theta2phase },
+    { f: f_scale,   f_inv: g_scale_inverse,       g: g_scale },
   ];
 
   function makeOnInput(info, index) {

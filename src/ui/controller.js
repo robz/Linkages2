@@ -1,4 +1,8 @@
-addExport('makeController',
+/**
+ * @providesModule makeController
+ */
+
+addModule('makeController',
 
 function (elemID, startValue, f, f_inv, onInput) {
   var elem = document.getElementById(elemID);
