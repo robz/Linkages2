@@ -35,7 +35,7 @@
       this.numPoints, 
       this.state.theta1rate, 
       this.state.theta2rate, 
-      0
+      this.state.theta2phase
     );
 
     this.isOptimizing = true;
