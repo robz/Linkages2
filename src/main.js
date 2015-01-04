@@ -51,14 +51,51 @@ window.onload = function () {
     optimizer.start(path, state.vector, updateLinkage, randomizeValue);
   };
 
+  var scale = 50;
+  function toModernSpec(spec) {
+    var alpha = spec.theta3 - Math.PI;
+    var dout = Math.sqrt(
+      spec.a5 * spec.a5 + spec.a2 * spec.a2 - 2 * spec.a5 * spec.a2 * Math.cos(alpha)
+    );
+    var beta = Math.acos(
+      (spec.a5 * spec.a5 - dout * dout - spec.a2 * spec.a2) 
+      / (-2 * dout * spec.a2)
+    );
+    var thetaout = (spec.theta3 < Math.PI) ? beta : 2*Math.PI - beta;
+
+    var crank_phase = Math.atan2(spec.P5.y - spec.P1.y, spec.P5.x - spec.P1.x);
+    console.log(crank_phase * 180 / Math.PI);
+
+    return { 
+      theta1rate: spec.speed1,
+      theta2rate: spec.speed2,
+      theta2phase: spec.theta2_phase - crank_phase,
+      vector: [
+        spec.P1.x,
+        spec.P1.y,
+        spec.P5.x * scale,
+        spec.P5.y * scale,
+        spec.a1 * scale,
+        spec.a2 * scale,
+        spec.a3 * scale,
+        spec.a4 * scale,
+        thetaout,
+        dout * scale,
+      ],
+    };
+  };
+
   // update the linkage when importing, after validation
   ui.onImportButtonPressed = function (inputText) {
     try {
       var newState = JSON.parse(inputText);
+      //var legacySpec = JSON.parse(inputText);
     } catch (err) {
       console.log('error while importing', err); 
       return;
     }
+
+    //var newState = toModernSpec(legacySpec);
    
     if (
       newState.theta1rate === undefined || 

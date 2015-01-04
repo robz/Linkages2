@@ -56,7 +56,8 @@ function (elementIDs, state) {
   });
   
   var ctx = canvas.getContext('2d');
-  ctx.translate(that.OFFSET_X, that.OFFSET_Y);
+  ctx.scale(1, -1);
+  ctx.translate(that.OFFSET_X, -that.OFFSET_Y);
   linkagePathBuffer = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
   importButton.onmousedown = function () {
