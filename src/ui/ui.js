@@ -14,7 +14,9 @@ function (elementIDs, state) {
   var importTextarea = document.getElementById(elementIDs.importTextarea);
   var importButton = document.getElementById(elementIDs.importButton);
   var pathOptimizeButton = document.getElementById(elementIDs.pathOptimizeButton);
+  var segmentOptimizeButton = document.getElementById(elementIDs.segmentOptimizeButton);
   var stopOptmizationButton = document.getElementById(elementIDs.stopOptmizationButton);
+  var clearPathButton = document.getElementById(elementIDs.clearPathButton);
 
   var IMPORT_BUTTON_HEIGHT = importButton.clientHeight;
   var TA_WIDTH = 200; 
@@ -25,9 +27,11 @@ function (elementIDs, state) {
   that.onPathDrawn = function () {};
   that.onImportButtonPressed = function () {};
   that.onControllerUpdate = function () {};
-  that.onOptimizePressed = function () {};
+  that.onOptimizePathPressed = function () {};
+  that.onOptimizeSegmentPressed = function () {};
   that.onExploreChange = function () {};
   that.onStopOptmize = function () {};
+  that.onRandomize = function () {};
 
   canvas.width = document.body.clientWidth - TA_WIDTH*2;
   canvas.height = document.body.clientHeight;
@@ -64,13 +68,26 @@ function (elementIDs, state) {
     that.onImportButtonPressed(importTextarea.value);
   };
 
-  pathOptimizeButton .onmousedown = function () {
-    that.onOptimizePressed(path.slice());
+  pathOptimizeButton.onmousedown = function () {
+    that.onOptimizePathPressed(path.slice());
+    flagPathToBeCleared = true;
+  };
+
+  segmentOptimizeButton.onmousedown = function () {
+    that.onOptimizeSegmentPressed(path.slice());
     flagPathToBeCleared = true;
   };
 
   stopOptmizationButton.onmousedown = function () {
     that.onStopOptmize();
+  };
+
+  clearPathButton.onmousedown = function () {
+    path = [];
+  };
+
+  randomizeButton.onmousedown = function () {
+    that.onRandomize();
   };
 
   makeController(
@@ -93,7 +110,7 @@ function (elementIDs, state) {
 
   function addToPath(e) {
     var x = e.clientX - that.OFFSET_X - 200;
-    var y = e.clientY - that.OFFSET_Y;
+    var y = -e.clientY + that.OFFSET_Y;
     path.push({pE:{x:x, y:y}});
   }
 

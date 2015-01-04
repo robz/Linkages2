@@ -22,8 +22,11 @@ window.onload = function () {
       importTextarea: 'inputTA',
       importButton: 'importButton',
       pathOptimizeButton: 'pathOptimizeButton',
+      segmentOptimizeButton: 'segmentOptimizeButton',
       exploreController: 'exploreRange',
       stopOptmizationButton: 'stopOptmizationButton',
+      clearPathButton: 'clearPathButton',
+      randomizeButton: 'randomizeButton',
       stateControllers: (function () {
         var arr = [];
         for (var i = 1; i <= 18; i++) { arr.push('c' + i); } 
@@ -47,10 +50,53 @@ window.onload = function () {
   };
  
   // run the optimizer after drawing a single stroke 
-  ui.onOptimizePressed = function (path) {
-    optimizer.start(path, state.vector, updateLinkage, randomizeValue);
+  ui.onOptimizePathPressed = function (path) {
+    optimizer.start(path, state.vector, updateLinkage, randomizeValue, false);
   };
 
+  // run the optimizer after drawing a single stroke 
+  ui.onOptimizeSegmentPressed = function (path) {
+    optimizer.start(path, state.vector, updateLinkage, randomizeValue, true);
+  };
+
+  ui.onRandomize = function () {
+    var MAX_BAR_LEN = 500/2;
+
+    var rp = function () {
+      return Math.random();
+    };
+    var rn = function () {
+      return (Math.random() - .5) * 2;
+    };
+    
+    var flag = false;
+    do {
+      try {
+        updateLinkage({
+          theta1rate: state.theta1rate,
+          theta2rate: state.theta2rate,
+          theta2phase: state.theta2phase,
+          vector: [
+            rn() * ui.OFFSET_X/2,
+            rn() * ui.OFFSET_Y/2,
+            rn() * ui.OFFSET_X/2,
+            rn() * ui.OFFSET_Y/2,
+            rp() * MAX_BAR_LEN,
+            rp() * MAX_BAR_LEN,
+            rp() * MAX_BAR_LEN,
+            rp() * MAX_BAR_LEN,
+            rp() * 2 * Math.PI,
+            rp() * MAX_BAR_LEN,
+          ],
+        });
+        flag = false;
+      } catch (e) {
+        updateLinkage(state);
+        flag = true;
+      }
+    } while (flag);
+  };
+ 
   var scale = 50;
   function toModernSpec(spec) {
     var alpha = spec.theta3 - Math.PI;

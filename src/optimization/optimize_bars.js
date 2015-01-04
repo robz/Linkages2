@@ -23,7 +23,8 @@
     desiredPath, 
     initialVector, 
     update,
-    randomizeValue
+    randomizeValue,
+    onlySegment
   ) {
     if (this.isOptimizing) {
       console.log('not done with previous optimization!');
@@ -46,7 +47,8 @@
       this.applyVector,
       this.calcPath,
       desiredPath,
-      randomizeValue 
+      randomizeValue,
+      onlySegment
     );
       
     var count = 0;
@@ -68,22 +70,25 @@
     setTimeout(f, this.PERIOD);
   };
 
-  function makeLinkageOptimizeStep(applyVector, calcPath, desiredPath, scale) {
-    var desiredAverage = averagePoint(desiredPath);
+  function makeLinkageOptimizeStep(applyVector, calcPath, desiredPath, scale, onlySegment) {
+    //var desiredAverage = averagePoint(desiredPath);
 
-    function measureError(path) {
-      var average = averagePoint(path); 
-      var errorAverage = 
-        Math.abs(desiredAverage.x - average.x) + 
-        Math.abs(desiredAverage.y - average.y);
-
+      //var average = averagePoint(path); 
+      //var errorAverage = 
+      //  Math.abs(desiredAverage.x - average.x) + 
+      //  Math.abs(desiredAverage.y - average.y);
       //var d1 = calcMinDistSum(path, desiredPath);
       //var d2 = calcMinDistSum(desiredPath, path);
       //return d1 + d2;
 
+    function measureErrorPath(path) {
       var maxMinDist1 = calcMaxMinDist(path, desiredPath);
       var maxMinDist2 = calcMaxMinDist(desiredPath, path);
       return maxMinDist2 + maxMinDist1;
+    }
+
+    function measureErrorSegment(path) {
+      return calcMaxMinDist(desiredPath, path);
     }
 
     var calcOutput = function (vector) {
@@ -106,7 +111,7 @@
       return optimizeStep(
         vector, 
         calcOutput, 
-        measureError, 
+        (onlySegment) ? measureErrorSegment : measureErrorPath, 
         scales, 
         prevCount, 
         maxCount
