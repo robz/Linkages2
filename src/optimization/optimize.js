@@ -3,7 +3,7 @@
  */
 
 (function () {
-  function optimizeStep(
+  function stocasticHillClimbStep(
     initialVector, 
     calcOutput, 
     measureError, 
@@ -52,19 +52,98 @@
     }
   }
 
-  function testOptimizeStep() {
+  function hillClimbStep(
+    initialVector, 
+    calcOutput, 
+    measureError, 
+    initialStepSizes, 
+    prevCount, 
+    maxCount
+  ) {
+    var acceleration = 1.1;
+    var accelerations = [
+      -acceleration,
+      -1/acceleration,
+      0,
+      1/acceleration,
+      acceleration,
+    ];
+
+    var vector = initialVector.slice();
+    var stepSizes = initialStepSizes;
+
+    var startOutput = calcOutput(vector);
+    if (startOutput === null) {
+      throw new Error("starting config can't be invalid!");
+    }
+    
+    var finalError = null;
+    stepSizes.forEach(function (stepSize, i) {
+      var initialValue = vector[i]; 
+
+      var best = accelerations.reduce(function (best, accel) {
+        vector[i] = initialValue + stepSize * accel;
+
+        var output = calcOutput(vector);
+        if (output === null) {
+          return best;
+        }
+
+        var error = measureError(output);
+        if (error === Number.MAX_VALUE) {
+          throw new Error('wat');
+        }
+        if (error < best.error) {
+          return {
+            error: error,
+            value: vector[i],
+            accel: accel,
+          }; 
+        } 
+
+        return best;
+      }, {error: Number.MAX_VALUE});
+
+      if (best.value === undefined) {
+        throw new Error('no valid config found--starting config invalid?'); 
+      }
+
+      vector[i] = best.value;
+      finalError = best.error;
+
+      if (best.accel !== 0) {
+        stepSizes[i] *= best.accel;
+      }
+    });
+
+    return {
+      vector: vector,
+      error: finalError,
+      count: 1,
+      stepSizes: stepSizes,
+    };
+  }
+
+  function testOptimizeStep(optimizeStep) {
     var desiredSum = 40;
     var calcOutput = function (arr) { 
       return arr.reduce(function (sum, e) { return sum + e; }, 0);
     }
     var measureError = function (v) { return Math.abs(desiredSum - v); };
-    var vector = [0, 0, 0];
+    var vector = [Math.random(), Math.random(), Math.random()];
     var scales = [10, 5, 1];
+    vector = vector.map(function (e, i) { return e * scales[i]; });
 
     for (var ii = 0; ii < 50; ii++) {
-      vector = optimizeStep(vector, calcOutput, measureError, scales);
+      var res = optimizeStep(vector, calcOutput, measureError, scales);
+      vector = res.vector;
     }
   } 
 
-  addModule('optimizeStep', optimizeStep);
+  //testOptimizeStep(hillClimbStep);
+
+  addModule('OptimizeStepper', {
+    stocasticHillClimbStep: stocasticHillClimbStep,
+    hillClimbStep: hillClimbStep,
+  });
 }());

@@ -70,6 +70,12 @@
       }
     }
 
+    pointsList.forEach(function (e, i) {
+      if (isNaN(e.pE.x) || isNaN(e.pE.y)) {
+        throw Error('got a NaN'); // wat
+      }
+    });
+
     this.path = pointsList;
     return pointsList;
   };

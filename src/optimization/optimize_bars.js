@@ -3,12 +3,12 @@
  */
 
 (function () {
-  var optimizeStep = require('optimizeStep');
+  var optimizeStep = require('OptimizeStepper').hillClimbStep;
 
   function LinkageOptimizer(LinkageClass, numPoints, state) {
     if (!(this instanceof LinkageOptimizer)) { throw Error('lacking new'); }
 
-    this.MAX_OPTIMIZE_STEPS = 3000;
+    this.MAX_OPTIMIZE_STEPS = 100;
     this.PERIOD = 10;
    
     this.isOptimizing = false;
@@ -64,6 +64,7 @@
         setTimeout(f, this.PERIOD);
       } else {
         this.isOptimizing = false;
+        console.log('done optimizing');
       }
     }.bind(this);
     
@@ -103,10 +104,10 @@
 
       return res;
     };
-    
-    var scales = [1, 1, 1, 1, 1, 1, 1, 1, .01, .5];
-    scales = scales.map(function (e) { return e * scale; });
 
+    var scales = [1, 1, 1, 1, 1, 1, 1, 1, .01, .1];
+    scales = scales.map(function (e) { return e * 2; });
+    
     return function (vector, prevCount, maxCount) {
       return optimizeStep(
         vector, 
@@ -153,6 +154,10 @@
             minDist = dist;
           }
         }); 
+        
+        if (minDist === Number.MAX_VALUE) {
+          throw new Error('waaaat');
+        }
 
         sum += minDist;
       });
@@ -163,11 +168,11 @@
     function calcMaxMinDist(path1, path2) {
       var maxMin = Number.MIN_VALUE;
 
-      path1.forEach(function (e1) {
+      path1.forEach(function (e1, i1, arr1) {
         var p1 = e1.pE;
         var minDist = Number.MAX_VALUE;
         
-        path2.forEach(function (e2) {
+        path2.forEach(function (e2, i2, arr2) {
           var p2 = e2.pE;
           var dist = calcDist(p1, p2);
           
@@ -175,6 +180,10 @@
             minDist = dist;
           }
         }); 
+
+        if (minDist === Number.MAX_VALUE) {
+          throw new Error('waaaat');
+        }
 
         if (minDist > maxMin) {
           maxMin = minDist;
