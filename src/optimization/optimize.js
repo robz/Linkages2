@@ -60,12 +60,12 @@
     prevCount, 
     maxCount
   ) {
-    var acceleration = 1.1;
+    var acceleration = 1; 
     var accelerations = [
       -acceleration,
-      -1/acceleration,
+      //-1/acceleration,
       0,
-      1/acceleration,
+      //1/acceleration,
       acceleration,
     ];
 
@@ -76,6 +76,8 @@
     if (startOutput === null) {
       throw new Error("starting config can't be invalid!");
     }
+    
+    var startError = measureError(startOutput);
     
     var finalError = null;
     stepSizes.forEach(function (stepSize, i) {
@@ -112,14 +114,14 @@
       finalError = best.error;
 
       if (best.accel !== 0) {
-        stepSizes[i] *= best.accel;
+        //stepSizes[i] *= best.accel;
       }
     });
 
     return {
       vector: vector,
       error: finalError,
-      count: 1,
+      count: (startError - finalError < 1e-6) ? maxCount : 1,
       stepSizes: stepSizes,
     };
   }

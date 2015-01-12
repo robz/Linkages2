@@ -83,6 +83,13 @@
       //return d1 + d2;
 
     function measureErrorPath(path) {
+      //var average = averagePoint(path); 
+      //var errorAverage = 
+      //  Math.abs(desiredAverage.x - average.x) + 
+      //  Math.abs(desiredAverage.y - average.y);
+      //var d1 = calcMinDistSum(path, desiredPath);
+      //var d2 = calcMinDistSum(desiredPath, path);
+      //return d1 + d2;
       var maxMinDist1 = calcMaxMinDist(path, desiredPath);
       var maxMinDist2 = calcMaxMinDist(desiredPath, path);
       return maxMinDist2 + maxMinDist1;
@@ -105,8 +112,8 @@
       return res;
     };
 
-    var scales = [1, 1, 1, 1, 1, 1, 1, 1, .01, .1];
-    scales = scales.map(function (e) { return e * 2; });
+    var scales = [1, 1, 1, 1, 1, 1, 1, 1, .01, .5];
+    scales = scales.map(function (e) { return e * 5; });
     
     return function (vector, prevCount, maxCount) {
       return optimizeStep(
